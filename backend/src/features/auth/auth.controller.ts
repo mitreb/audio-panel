@@ -1,11 +1,8 @@
 import type { Request, Response } from 'express';
-import bcrypt from 'bcryptjs';
-import { PrismaClient } from '@prisma/client';
 import { generateToken } from './auth.middleware';
 import type { AuthRequest } from './auth.types';
 import { env } from '../../config/env';
-
-const prisma = new PrismaClient();
+import * as authService from './auth.service';
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -20,9 +17,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     }
 
     // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
+    const existingUser = await authService.findUserByEmail(email);
 
     if (existingUser) {
       res.status(400).json({
@@ -31,25 +26,8 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Hash password
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
     // Create user
-    const user = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-        name,
-      },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        role: true,
-        createdAt: true,
-      },
-    });
+    const user = await authService.createUser(email, password, name);
 
     // Generate JWT token
     const token = generateToken(user.id);
@@ -87,9 +65,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     }
 
     // Find user
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
+    const user = await authService.findUserByEmail(email);
 
     if (!user) {
       res.status(401).json({
@@ -99,7 +75,10 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     }
 
     // Verify password
-    const isValidPassword = await bcrypt.compare(password, user.password);
+    const isValidPassword = await authService.verifyPassword(
+      password,
+      user.password
+    );
 
     if (!isValidPassword) {
       res.status(401).json({
