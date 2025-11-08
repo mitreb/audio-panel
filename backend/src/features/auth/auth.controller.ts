@@ -1,7 +1,6 @@
 import type { Request, Response } from 'express';
 import type { AuthRequest } from './auth.types';
 import { env } from '../../config/env';
-import { generateToken } from '../../shared/utils/jwt';
 import * as authService from './auth.service';
 
 export const register = async (req: Request, res: Response): Promise<void> => {
@@ -16,21 +15,11 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Check if user already exists
-    const existingUser = await authService.findUserByEmail(email);
-
-    if (existingUser) {
-      res.status(400).json({
-        error: 'User with this email already exists',
-      });
-      return;
-    }
-
-    // Create user
-    const user = await authService.createUser(email, password, name);
-
-    // Generate JWT token
-    const token = generateToken(user.id);
+    const { user, token } = await authService.registerUser(
+      email,
+      password,
+      name
+    );
 
     // Set HTTP-only cookie
     res.cookie('token', token, {
@@ -46,6 +35,15 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     });
   } catch (error) {
     console.error('Registration error:', error);
+
+    if (
+      error instanceof Error &&
+      error.message === 'User with this email already exists'
+    ) {
+      res.status(400).json({ error: error.message });
+      return;
+    }
+
     res.status(500).json({
       error: 'Internal server error',
     });
@@ -64,31 +62,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Find user
-    const user = await authService.findUserByEmail(email);
-
-    if (!user) {
-      res.status(401).json({
-        error: 'Invalid email or password',
-      });
-      return;
-    }
-
-    // Verify password
-    const isValidPassword = await authService.verifyPassword(
-      password,
-      user.password
-    );
-
-    if (!isValidPassword) {
-      res.status(401).json({
-        error: 'Invalid email or password',
-      });
-      return;
-    }
-
-    // Generate JWT token
-    const token = generateToken(user.id);
+    const { user, token } = await authService.authenticateUser(email, password);
 
     // Set HTTP-only cookie
     res.cookie('token', token, {
@@ -100,15 +74,19 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     res.json({
       message: 'Login successful',
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-      },
+      user,
     });
   } catch (error) {
     console.error('Login error:', error);
+
+    if (
+      error instanceof Error &&
+      error.message === 'Invalid email or password'
+    ) {
+      res.status(401).json({ error: error.message });
+      return;
+    }
+
     res.status(500).json({
       error: 'Internal server error',
     });
