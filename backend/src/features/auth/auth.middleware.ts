@@ -1,16 +1,9 @@
-import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import type { Response, NextFunction } from 'express';
 import type { AuthRequest } from './auth.types';
-import { env } from '../../config/env';
+import { verifyToken } from '../../shared/utils/jwt';
 
 const prisma = new PrismaClient();
-
-export const generateToken = (userId: string): string => {
-  return jwt.sign({ userId }, env.JWT_SECRET, {
-    expiresIn: '7d',
-  });
-};
 
 export const authenticateToken = async (
   req: AuthRequest,
@@ -25,9 +18,7 @@ export const authenticateToken = async (
       return;
     }
 
-    const decoded = jwt.verify(token, env.JWT_SECRET) as {
-      userId: string;
-    };
+    const decoded = verifyToken(token);
 
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },

@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
-import { generateToken } from './auth.middleware';
 import type { AuthRequest } from './auth.types';
 import { env } from '../../config/env';
+import { generateToken } from '../../shared/utils/jwt';
 import * as authService from './auth.service';
 
 export const register = async (req: Request, res: Response): Promise<void> => {
