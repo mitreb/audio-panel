@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import type { AuthRequest } from './auth.types';
-import { env } from '../../config/env';
 import * as authService from './auth.service';
+import { setAuthCookie, clearAuthCookie } from '../../shared/utils/cookie';
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -22,12 +22,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     );
 
     // Set HTTP-only cookie
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
+    setAuthCookie(res, token);
 
     res.status(201).json({
       message: 'User registered successfully',
@@ -65,12 +60,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     const { user, token } = await authService.authenticateUser(email, password);
 
     // Set HTTP-only cookie
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
+    setAuthCookie(res, token);
 
     res.json({
       message: 'Login successful',
@@ -94,7 +84,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 };
 
 export const logout = (req: Request, res: Response): void => {
-  res.clearCookie('token');
+  clearAuthCookie(res);
   res.json({ message: 'Logout successful' });
 };
 
