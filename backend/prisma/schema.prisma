@@ -29,7 +29,7 @@ model Product {
   id         String   @id @default(cuid())
   name       String
   artist     String
-  coverImage String?
+  coverImage String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
