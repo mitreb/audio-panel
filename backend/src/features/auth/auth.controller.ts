@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import type { AuthRequest } from './auth.types';
-import * as authService from './auth.service';
+import AuthService from './auth.service';
 import { setAuthCookie, clearAuthCookie } from '../../shared/utils/cookie';
 
 class AuthController {
@@ -16,7 +16,7 @@ class AuthController {
         return;
       }
 
-      const { user, token } = await authService.registerUser(
+      const { user, token } = await AuthService.registerUser(
         email,
         password,
         name
@@ -58,7 +58,7 @@ class AuthController {
         return;
       }
 
-      const { user, token } = await authService.authenticateUser(
+      const { user, token } = await AuthService.authenticateUser(
         email,
         password
       );
