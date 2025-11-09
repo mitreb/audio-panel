@@ -1,10 +1,8 @@
 import { Response, NextFunction } from 'express';
-import { PrismaClient } from '@prisma/client';
 import { AuthRequest } from '../auth/auth.types';
+import ProductsService from './products.service';
 
 class ProductsController {
-  private static prisma = new PrismaClient();
-
   static async getProducts(
     req: AuthRequest,
     res: Response,
@@ -17,33 +15,14 @@ class ProductsController {
 
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
-      const skip = (page - 1) * limit;
 
-      const whereClause = { userId: req.user.id };
-
-      const total = await ProductsController.prisma.product.count({
-        where: whereClause,
+      const result = await ProductsService.getPaginatedProducts({
+        page,
+        limit,
+        userId: req.user.id,
       });
 
-      const products = await ProductsController.prisma.product.findMany({
-        where: whereClause,
-        skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-      });
-
-      const totalPages = Math.ceil(total / limit);
-
-      res.json({
-        data: products,
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages,
-          hasMore: page < totalPages,
-        },
-      });
+      res.json(result);
     } catch (error) {
       next(error);
     }
@@ -56,9 +35,7 @@ class ProductsController {
       }
 
       const { id } = req.params;
-      const product = await ProductsController.prisma.product.findUnique({
-        where: { id, userId: req.user.id },
-      });
+      const product = await ProductsService.getProductById(id, req.user.id);
 
       if (!product) {
         return res.status(404).json({ error: 'Product not found' });
@@ -85,14 +62,12 @@ class ProductsController {
       // Handle uploaded file
       const coverImage = 'change this later';
 
-      const product = await ProductsController.prisma.product.create({
-        data: {
-          name,
-          artist,
-          coverImage,
-          userId: req.user.id,
-        },
-      });
+      const product = await ProductsService.createProduct(
+        name,
+        artist,
+        coverImage,
+        req.user.id
+      );
 
       res.status(201).json(product);
     } catch (error) {
@@ -113,34 +88,28 @@ class ProductsController {
         return res.status(401).json({ error: 'Authentication required' });
       }
 
-      const existingProduct =
-        await ProductsController.prisma.product.findUnique({
-          where: { id },
-        });
-
-      if (!existingProduct) {
-        return res.status(404).json({ error: 'Product not found' });
-      }
-
-      if (existingProduct.userId !== req.user.id) {
-        return res
-          .status(403)
-          .json({ error: 'Not authorized to update this product' });
-      }
-
       // Handle uploaded file
       const updateData: any = {};
       if (name !== undefined) updateData.name = name;
       if (artist !== undefined) updateData.artist = artist;
       updateData.coverImage = 'change this later';
 
-      const product = await ProductsController.prisma.product.update({
-        where: { id },
-        data: updateData,
-      });
+      const product = await ProductsService.updateProduct(
+        id,
+        req.user.id,
+        updateData
+      );
 
       res.json(product);
     } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === 'Product not found') {
+          return res.status(404).json({ error: error.message });
+        }
+        if (error.message === 'Not authorized to update this product') {
+          return res.status(403).json({ error: error.message });
+        }
+      }
       next(error);
     }
   }
@@ -157,27 +126,18 @@ class ProductsController {
         return res.status(401).json({ error: 'Authentication required' });
       }
 
-      const existingProduct =
-        await ProductsController.prisma.product.findUnique({
-          where: { id },
-        });
-
-      if (!existingProduct) {
-        return res.status(404).json({ error: 'Product not found' });
-      }
-
-      if (existingProduct.userId !== req.user.id) {
-        return res
-          .status(403)
-          .json({ error: 'Not authorized to delete this product' });
-      }
-
-      await ProductsController.prisma.product.delete({
-        where: { id },
-      });
+      await ProductsService.deleteProduct(id, req.user.id);
 
       res.status(204).send();
     } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === 'Product not found') {
+          return res.status(404).json({ error: error.message });
+        }
+        if (error.message === 'Not authorized to delete this product') {
+          return res.status(403).json({ error: error.message });
+        }
+      }
       next(error);
     }
   }
