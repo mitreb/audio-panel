@@ -364,6 +364,17 @@ describe('Products API', () => {
           ])
         );
       });
+
+      it('should reject missing cover image', async () => {
+        const response = await request(app)
+          .post('/api/products')
+          .set('Cookie', authCookies)
+          .field('name', 'Test Product')
+          .field('artist', 'Test Artist')
+          .expect(400);
+
+        expect(response.body.error).toBe('Cover image is required');
+      });
     });
 
     describe('PUT /api/products/:id field validation', () => {

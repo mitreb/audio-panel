@@ -13,6 +13,8 @@ export const createProductSchema = z.object({
 });
 
 // Schema for creating a new product with file upload (form data)
+// Note: coverImage file upload is validated in the controller (req.file)
+// as multer processes files separately from req.body
 export const createProductWithFileSchema = z.object({
   name: z
     .string()
@@ -25,6 +27,7 @@ export const createProductWithFileSchema = z.object({
 });
 
 // Schema for updating a product (all fields optional)
+// Note: coverImage file upload (if provided) is validated in the controller (req.file)
 export const updateProductSchema = z.object({
   name: z
     .string()

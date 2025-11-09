@@ -1,5 +1,6 @@
 import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../auth/auth.types';
+import { ProductRequest } from './products.types';
 import ProductsService from './products.service';
 
 class ProductsController {
@@ -48,7 +49,7 @@ class ProductsController {
   }
 
   static async createProduct(
-    req: AuthRequest,
+    req: ProductRequest,
     res: Response,
     next: NextFunction
   ) {
@@ -59,7 +60,11 @@ class ProductsController {
         return res.status(401).json({ error: 'Authentication required' });
       }
 
-      const coverImage = `/uploads/${req.file!.filename}`;
+      if (!req.file) {
+        return res.status(400).json({ error: 'Cover image is required' });
+      }
+
+      const coverImage = `/uploads/${req.file.filename}`;
 
       const product = await ProductsService.createProduct(
         name,
@@ -75,7 +80,7 @@ class ProductsController {
   }
 
   static async updateProduct(
-    req: AuthRequest,
+    req: ProductRequest,
     res: Response,
     next: NextFunction
   ) {
