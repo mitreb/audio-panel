@@ -29,6 +29,9 @@ COPY prisma ./prisma/
 # Install production dependencies only
 RUN npm ci --only=production
 
+# Generate Prisma Client
+RUN npx prisma generate
+
 # Copy built application
 COPY --from=builder /app/dist ./dist
 
