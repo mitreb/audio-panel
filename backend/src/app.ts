@@ -2,6 +2,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import authRouter from './features/auth/auth.routes';
 import productsRouter from './features/products/products.routes';
+import adminRouter from './features/admin/admin.routes';
 import { errorHandler } from './shared/middleware/error-handler';
 const app = express();
 app.use(express.json());
@@ -17,6 +18,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/auth', authRouter);
 app.use('/api/products', productsRouter);
+app.use('/api/admin', adminRouter);
 
 app.use(errorHandler);
 
