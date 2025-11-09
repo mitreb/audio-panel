@@ -64,7 +64,7 @@ jobs:
             --region ${{ env.GCP_REGION }} \
             --allow-unauthenticated \
             --port 8080 \
-            --set-env-vars "VITE_API_URL=${{ steps.backend-url.outputs.backend_url }}"
+            --set-env-vars "BACKEND_URL=${{ steps.backend-url.outputs.backend_url }}"
 
       - name: Get service URL
         run: |
