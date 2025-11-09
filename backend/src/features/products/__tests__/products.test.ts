@@ -1,6 +1,8 @@
 import request from 'supertest';
 import app from '../../../app';
 import { PrismaClient } from '@prisma/client';
+import path from 'path';
+import fs from 'fs';
 
 const prisma = new PrismaClient();
 
@@ -36,25 +38,55 @@ describe('Products API', () => {
     await prisma.$disconnect();
   });
 
+  beforeEach(() => {
+    // Ensure uploads directory exists
+    const uploadsDir = path.join(process.cwd(), 'uploads');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+  });
+
+  afterEach(async () => {
+    // Clean up uploaded files
+    const uploadsDir = path.join(process.cwd(), 'uploads');
+    if (fs.existsSync(uploadsDir)) {
+      const files = fs.readdirSync(uploadsDir);
+      files.forEach((file) => {
+        if (file !== '.gitkeep') {
+          fs.unlinkSync(path.join(uploadsDir, file));
+        }
+      });
+    }
+  });
+
   describe('POST /api/products', () => {
+    const testImageBuffer = Buffer.from([
+      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
+      0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+      0x08, 0x06, 0x00, 0x00, 0x00, 0x1f, 0x15, 0xc4, 0x89, 0x00, 0x00, 0x00,
+      0x0a, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9c, 0x63, 0x00, 0x01, 0x00, 0x00,
+      0x05, 0x00, 0x01, 0x0d, 0x0a, 0x2d, 0xb4, 0x00, 0x00, 0x00, 0x00, 0x49,
+      0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82,
+    ]);
+
     it('should create a new product', async () => {
       const response = await request(app)
         .post('/api/products')
         .set('Cookie', authCookies)
-        .send({
-          name: 'Dark Side of the Moon',
-          artist: 'Pink Floyd',
-        })
+        .field('name', 'Dark Side of the Moon')
+        .field('artist', 'Pink Floyd')
+        .attach('coverImage', testImageBuffer, 'test-cover.png')
         .expect(201);
 
       expect(response.body).toHaveProperty('id');
       expect(response.body.name).toBe('Dark Side of the Moon');
       expect(response.body.artist).toBe('Pink Floyd');
-      expect(response.body.coverImage).toBe('change this later');
+      expect(response.body.coverImage).toMatch(/\.png$/);
       expect(response.body).toHaveProperty('createdAt');
       expect(response.body).toHaveProperty('updatedAt');
 
       // Store ID for other tests
+      createdProductId = response.body.id;
       createdProductId = response.body.id;
     });
   });
@@ -99,14 +131,22 @@ describe('Products API', () => {
   });
 
   describe('PUT /api/products/:id', () => {
+    const testImageBuffer = Buffer.from([
+      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
+      0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+      0x08, 0x06, 0x00, 0x00, 0x00, 0x1f, 0x15, 0xc4, 0x89, 0x00, 0x00, 0x00,
+      0x0a, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9c, 0x63, 0x00, 0x01, 0x00, 0x00,
+      0x05, 0x00, 0x01, 0x0d, 0x0a, 0x2d, 0xb4, 0x00, 0x00, 0x00, 0x00, 0x49,
+      0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82,
+    ]);
+
     it('should update a product', async () => {
       const response = await request(app)
         .put(`/api/products/${createdProductId}`)
         .set('Cookie', authCookies)
-        .send({
-          name: 'Dark Side of the Moon (Remastered)',
-          artist: 'Pink Floyd',
-        })
+        .field('name', 'Dark Side of the Moon (Remastered)')
+        .field('artist', 'Pink Floyd')
+        .attach('coverImage', testImageBuffer, 'test-cover.png')
         .expect(200);
 
       expect(response.body.name).toBe('Dark Side of the Moon (Remastered)');
@@ -115,13 +155,21 @@ describe('Products API', () => {
     });
 
     it('should return 404 for non-existent product', async () => {
+      const testImageBuffer = Buffer.from([
+        0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
+        0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+        0x08, 0x06, 0x00, 0x00, 0x00, 0x1f, 0x15, 0xc4, 0x89, 0x00, 0x00, 0x00,
+        0x0a, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9c, 0x63, 0x00, 0x01, 0x00, 0x00,
+        0x05, 0x00, 0x01, 0x0d, 0x0a, 0x2d, 0xb4, 0x00, 0x00, 0x00, 0x00, 0x49,
+        0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82,
+      ]);
+
       await request(app)
         .put('/api/products/non-existent-id')
         .set('Cookie', authCookies)
-        .send({
-          name: 'Dark Side of the Moon',
-          artist: 'Pink Floyd',
-        })
+        .field('name', 'Dark Side of the Moon')
+        .field('artist', 'Pink Floyd')
+        .attach('coverImage', testImageBuffer, 'test-cover.png')
         .expect(404);
     });
   });
@@ -145,6 +193,98 @@ describe('Products API', () => {
         .delete('/api/products/non-existent-id')
         .set('Cookie', authCookies)
         .expect(404);
+    });
+  });
+
+  describe('File Upload', () => {
+    const testImageBuffer = Buffer.from([
+      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
+      0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+      0x08, 0x06, 0x00, 0x00, 0x00, 0x1f, 0x15, 0xc4, 0x89, 0x00, 0x00, 0x00,
+      0x0a, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9c, 0x63, 0x00, 0x01, 0x00, 0x00,
+      0x05, 0x00, 0x01, 0x0d, 0x0a, 0x2d, 0xb4, 0x00, 0x00, 0x00, 0x00, 0x49,
+      0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82,
+    ]);
+
+    it('should upload an image with product creation', async () => {
+      const response = await request(app)
+        .post('/api/products')
+        .set('Cookie', authCookies)
+        .field('name', 'Abbey Road')
+        .field('artist', 'The Beatles')
+        .attach('coverImage', testImageBuffer, 'test-cover.png')
+        .expect(201);
+
+      expect(response.body).toHaveProperty('id');
+      expect(response.body.name).toBe('Abbey Road');
+      expect(response.body.artist).toBe('The Beatles');
+      expect(response.body.coverImage).toMatch(/\.png$/);
+
+      // Verify file was actually saved
+      const uploadsDir = path.join(process.cwd(), 'uploads');
+      const fileName = response.body.coverImage.replace('/uploads/', '');
+      const uploadedFile = path.join(uploadsDir, fileName);
+      expect(fs.existsSync(uploadedFile)).toBe(true);
+    });
+
+    it('should reject non-image files', async () => {
+      const textBuffer = Buffer.from('This is not an image');
+
+      const response = await request(app)
+        .post('/api/products')
+        .set('Cookie', authCookies)
+        .field('name', 'Test Product')
+        .field('artist', 'Test Artist')
+        .attach('coverImage', textBuffer, 'test.txt')
+        .expect(500);
+
+      expect(response.body.error).toContain('Only image files are allowed');
+    });
+
+    it('should reject files larger than 5MB', async () => {
+      // Create a buffer larger than 5MB
+      const largeBuffer = Buffer.alloc(6 * 1024 * 1024, 'x');
+
+      const response = await request(app)
+        .post('/api/products')
+        .set('Cookie', authCookies)
+        .field('name', 'Test Product')
+        .field('artist', 'Test Artist')
+        .attach('coverImage', largeBuffer, 'large-image.jpg')
+        .expect(500);
+
+      expect(response.body.error).toContain('File too large');
+    });
+
+    it('should update product with new image', async () => {
+      // First create a product with image
+      const createResponse = await request(app)
+        .post('/api/products')
+        .set('Cookie', authCookies)
+        .field('name', 'Test Album')
+        .field('artist', 'Test Artist')
+        .attach('coverImage', testImageBuffer, 'test-cover.png')
+        .expect(201);
+
+      const productId = createResponse.body.id;
+
+      // Update with new image
+      const updateResponse = await request(app)
+        .put(`/api/products/${productId}`)
+        .set('Cookie', authCookies)
+        .field('name', 'Test Album Updated')
+        .field('artist', 'Test Artist')
+        .attach('coverImage', testImageBuffer, 'updated-cover.png')
+        .expect(200);
+
+      expect(updateResponse.body.name).toBe('Test Album Updated');
+      expect(updateResponse.body.coverImage).toMatch(/\.png$/);
+
+      // Verify file was saved
+      const uploadsDir = path.join(process.cwd(), 'uploads');
+      const fileName = updateResponse.body.coverImage.replace('/uploads/', '');
+      const uploadedFile = path.join(uploadsDir, fileName);
+      expect(fs.existsSync(uploadedFile)).toBe(true);
     });
   });
 });
