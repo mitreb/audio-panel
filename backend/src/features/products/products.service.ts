@@ -2,6 +2,8 @@ import { PrismaClient } from '@prisma/client';
 import type { PaginationParams } from './products.types';
 import fs from 'fs';
 import path from 'path';
+import { config } from '../../config/env';
+import { deleteFromGCS, extractFilename } from '../../shared/utils/storage';
 
 class ProductsService {
   private static prisma = new PrismaClient();
@@ -77,12 +79,19 @@ class ProductsService {
 
     // If updating coverImage, delete the old image file
     if (updateData.coverImage && existingProduct.coverImage) {
-      const oldImagePath = path.join(
-        process.cwd(),
-        existingProduct.coverImage.replace(/^\//, '')
-      );
-      if (fs.existsSync(oldImagePath)) {
-        fs.unlinkSync(oldImagePath);
+      if (config.USE_CLOUD_STORAGE) {
+        const filename = extractFilename(existingProduct.coverImage);
+        if (filename) {
+          await deleteFromGCS(filename);
+        }
+      } else {
+        const oldImagePath = path.join(
+          process.cwd(),
+          existingProduct.coverImage.replace(/^\//, '')
+        );
+        if (fs.existsSync(oldImagePath)) {
+          fs.unlinkSync(oldImagePath);
+        }
       }
     }
 
@@ -112,12 +121,19 @@ class ProductsService {
 
     // Delete the associated image file
     if (existingProduct.coverImage) {
-      const imagePath = path.join(
-        process.cwd(),
-        existingProduct.coverImage.replace(/^\//, '')
-      );
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
+      if (config.USE_CLOUD_STORAGE) {
+        const filename = extractFilename(existingProduct.coverImage);
+        if (filename) {
+          await deleteFromGCS(filename);
+        }
+      } else {
+        const imagePath = path.join(
+          process.cwd(),
+          existingProduct.coverImage.replace(/^\//, '')
+        );
+        if (fs.existsSync(imagePath)) {
+          fs.unlinkSync(imagePath);
+        }
       }
     }
   }

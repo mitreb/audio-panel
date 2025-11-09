@@ -2,6 +2,7 @@ import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../auth/auth.types';
 import { ProductRequest } from './products.types';
 import ProductsService from './products.service';
+import { getImageUrl } from '../../shared/utils/storage';
 
 class ProductsController {
   static async getProducts(
@@ -64,7 +65,11 @@ class ProductsController {
         return res.status(400).json({ error: 'Cover image is required' });
       }
 
-      const coverImage = `/uploads/${req.file.filename}`;
+      const coverImage = await getImageUrl(req.file);
+
+      if (!coverImage) {
+        return res.status(500).json({ error: 'Failed to upload image' });
+      }
 
       const product = await ProductsService.createProduct(
         name,
@@ -96,10 +101,16 @@ class ProductsController {
         return res.status(400).json({ error: 'Cover image is required' });
       }
 
+      const coverImage = await getImageUrl(req.file);
+
+      if (!coverImage) {
+        return res.status(500).json({ error: 'Failed to upload image' });
+      }
+
       const updateData: Record<string, string> = {
         name,
         artist,
-        coverImage: `/uploads/${req.file.filename}`,
+        coverImage,
       };
 
       const product = await ProductsService.updateProduct(
