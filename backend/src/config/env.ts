@@ -15,6 +15,7 @@ export const env = cleanEnv(process.env, {
   PORT: port({
     default: 3000,
     desc: 'Port number for the server',
+    devDefault: 3000,
   }),
 
   NODE_ENV: str({

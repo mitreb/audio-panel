@@ -2,7 +2,8 @@ import e from 'express';
 import app from './app';
 import { env } from './config/env';
 
-const PORT = env.PORT || 3000;
+// Cloud Run sets PORT env var, default to 3000 for local development
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : env.PORT;
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);

@@ -35,8 +35,8 @@ COPY --from=builder /app/dist ./dist
 # Create uploads directory (for local development fallback)
 RUN mkdir -p uploads
 
-# Expose port
-EXPOSE 3000
+# Expose port (Cloud Run will set PORT env var, typically 8080)
+EXPOSE 8080
 
 # Start the application
 CMD ["npm", "start"]
