@@ -296,4 +296,119 @@ describe('Products API', () => {
       expect(response.body.error).toContain('File too large');
     });
   });
+
+  describe('Field Validation', () => {
+    const testImageBuffer = Buffer.from([
+      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
+      0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+      0x08, 0x06, 0x00, 0x00, 0x00, 0x1f, 0x15, 0xc4, 0x89, 0x00, 0x00, 0x00,
+      0x0a, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9c, 0x63, 0x00, 0x01, 0x00, 0x00,
+      0x05, 0x00, 0x01, 0x0d, 0x0a, 0x2d, 0xb4, 0x00, 0x00, 0x00, 0x00, 0x49,
+      0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82,
+    ]);
+
+    describe('POST /api/products field validation', () => {
+      it('should reject empty product name', async () => {
+        const response = await request(app)
+          .post('/api/products')
+          .set('Cookie', authCookies)
+          .field('name', '')
+          .field('artist', 'Test Artist')
+          .attach('coverImage', testImageBuffer, 'test-cover.png')
+          .expect(400);
+
+        expect(response.body.error).toBe('Validation error');
+        expect(response.body.details).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              field: 'name',
+              message: 'Product name is required',
+            }),
+          ])
+        );
+      });
+
+      it('should reject missing artist', async () => {
+        const response = await request(app)
+          .post('/api/products')
+          .set('Cookie', authCookies)
+          .field('name', 'Test Product')
+          .attach('coverImage', testImageBuffer, 'test-cover.png')
+          .expect(400);
+
+        expect(response.body.error).toBe('Validation error');
+        expect(response.body.details).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              field: 'artist',
+            }),
+          ])
+        );
+      });
+
+      it('should reject names longer than 100 characters', async () => {
+        const response = await request(app)
+          .post('/api/products')
+          .set('Cookie', authCookies)
+          .field('name', 'a'.repeat(101))
+          .field('artist', 'Test Artist')
+          .attach('coverImage', testImageBuffer, 'test-cover.png')
+          .expect(400);
+
+        expect(response.body.details).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              field: 'name',
+              message: 'Product name must be less than 100 characters',
+            }),
+          ])
+        );
+      });
+    });
+
+    describe('PUT /api/products/:id field validation', () => {
+      let productId: string;
+
+      beforeEach(async () => {
+        // Create a product for updating
+        const response = await request(app)
+          .post('/api/products')
+          .set('Cookie', authCookies)
+          .field('name', 'Product to Update')
+          .field('artist', 'Original Artist')
+          .attach('coverImage', testImageBuffer, 'test-cover.png')
+          .expect(201);
+        productId = response.body.id;
+      });
+
+      it('should reject empty name in update', async () => {
+        const response = await request(app)
+          .put(`/api/products/${productId}`)
+          .set('Cookie', authCookies)
+          .field('name', '')
+          .attach('coverImage', testImageBuffer, 'test-cover.png')
+          .expect(400);
+
+        expect(response.body.details).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              field: 'name',
+              message: 'Product name cannot be empty',
+            }),
+          ])
+        );
+      });
+
+      it('should accept partial update data', async () => {
+        const response = await request(app)
+          .put(`/api/products/${productId}`)
+          .set('Cookie', authCookies)
+          .field('name', 'Updated Product Name')
+          .attach('coverImage', testImageBuffer, 'test-cover.png')
+          .expect(200);
+
+        expect(response.body.name).toBe('Updated Product Name');
+      });
+    });
+  });
 });
