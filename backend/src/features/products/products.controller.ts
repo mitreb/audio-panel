@@ -59,8 +59,7 @@ class ProductsController {
         return res.status(401).json({ error: 'Authentication required' });
       }
 
-      // Handle uploaded file
-      const coverImage = 'change this later';
+      const coverImage = `/uploads/${req.file!.filename}`;
 
       const product = await ProductsService.createProduct(
         name,
@@ -88,11 +87,12 @@ class ProductsController {
         return res.status(401).json({ error: 'Authentication required' });
       }
 
-      // Handle uploaded file
-      const updateData: any = {};
-      if (name !== undefined) updateData.name = name;
-      if (artist !== undefined) updateData.artist = artist;
-      updateData.coverImage = 'change this later';
+      const updateData: Record<string, string> = {};
+      if (name) updateData.name = name;
+      if (artist) updateData.artist = artist;
+      if (req.file) {
+        updateData.coverImage = `/uploads/${req.file.filename}`;
+      }
 
       const product = await ProductsService.updateProduct(
         id,

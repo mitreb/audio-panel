@@ -15,3 +15,5 @@ yarn-error.log
 
 # Optional OS-specific
 Thumbs.db
+
+uploads/*
