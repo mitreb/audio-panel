@@ -23,6 +23,12 @@ export const env = cleanEnv(process.env, {
     desc: 'Application environment',
   }),
 
+  // Frontend
+  FRONTEND_URL: str({
+    default: 'http://localhost:5173',
+    desc: 'Frontend application URL',
+  }),
+
   // Google Cloud
   GCP_PROJECT_ID: str({
     default: '',
