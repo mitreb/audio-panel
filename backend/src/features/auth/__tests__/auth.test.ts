@@ -153,7 +153,7 @@ describe('Authentication API', () => {
     });
   });
 
-  describe('GET /api/auth/me', () => {
+  describe('GET /api/auth/user', () => {
     let authCookies: string;
 
     beforeEach(async () => {
@@ -170,7 +170,7 @@ describe('Authentication API', () => {
 
     it('should return user info when authenticated', async () => {
       const response = await request(app)
-        .get('/api/auth/me')
+        .get('/api/auth/user')
         .set('Cookie', authCookies)
         .expect(200);
 
@@ -180,7 +180,7 @@ describe('Authentication API', () => {
     });
 
     it('should return 401 when not authenticated', async () => {
-      const response = await request(app).get('/api/auth/me').expect(401);
+      const response = await request(app).get('/api/auth/user').expect(401);
 
       expect(response.body).toHaveProperty(
         'error',
