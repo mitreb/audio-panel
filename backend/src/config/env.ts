@@ -1,4 +1,4 @@
-import { cleanEnv, str, port } from 'envalid';
+import { cleanEnv, str, port, bool } from 'envalid';
 
 export const env = cleanEnv(process.env, {
   // Database
@@ -22,4 +22,28 @@ export const env = cleanEnv(process.env, {
     default: 'development',
     desc: 'Application environment',
   }),
+
+  // Google Cloud
+  GCP_PROJECT_ID: str({
+    default: '',
+    desc: 'Google Cloud Project ID',
+  }),
+
+  GCS_BUCKET_NAME: str({
+    default: '',
+    desc: 'Google Cloud Storage bucket name',
+  }),
+
+  USE_CLOUD_STORAGE: bool({
+    default: false,
+    desc: 'Whether to use Google Cloud Storage for file uploads',
+  }),
 });
+
+export const config = {
+  ...env,
+  cookieSecure: env.NODE_ENV === 'production',
+  cookieSameSite: (env.NODE_ENV === 'production' ? 'none' : 'lax') as
+    | 'none'
+    | 'lax',
+} as const;
