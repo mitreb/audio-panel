@@ -92,14 +92,15 @@ class ProductsController {
         return res.status(401).json({ error: 'Authentication required' });
       }
 
+      if (!req.file) {
+        return res.status(400).json({ error: 'Cover image is required' });
+      }
+
       const updateData: Record<string, string> = {
         name,
         artist,
+        coverImage: `/uploads/${req.file.filename}`,
       };
-
-      if (req.file) {
-        updateData.coverImage = `/uploads/${req.file.filename}`;
-      }
 
       const product = await ProductsService.updateProduct(
         id,
