@@ -1,5 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import type { PaginationParams } from './products.types';
+import fs from 'fs';
+import path from 'path';
 
 class ProductsService {
   private static prisma = new PrismaClient();
@@ -73,6 +75,17 @@ class ProductsService {
       throw new Error('Not authorized to update this product');
     }
 
+    // If updating coverImage, delete the old image file
+    if (updateData.coverImage && existingProduct.coverImage) {
+      const oldImagePath = path.join(
+        process.cwd(),
+        existingProduct.coverImage.replace(/^\//, '')
+      );
+      if (fs.existsSync(oldImagePath)) {
+        fs.unlinkSync(oldImagePath);
+      }
+    }
+
     return await this.prisma.product.update({
       where: { id: productId },
       data: updateData,
@@ -92,9 +105,21 @@ class ProductsService {
       throw new Error('Not authorized to delete this product');
     }
 
+    // Delete the product from database
     await this.prisma.product.delete({
       where: { id: productId },
     });
+
+    // Delete the associated image file
+    if (existingProduct.coverImage) {
+      const imagePath = path.join(
+        process.cwd(),
+        existingProduct.coverImage.replace(/^\//, '')
+      );
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
+    }
   }
 }
 

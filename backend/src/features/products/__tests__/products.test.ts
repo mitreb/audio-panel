@@ -154,6 +154,45 @@ describe('Products API', () => {
       expect(response.body.updatedAt).not.toBe(response.body.createdAt);
     });
 
+    it('should delete old image when updating with new image', async () => {
+      // Create a product with image
+      const createResponse = await request(app)
+        .post('/api/products')
+        .set('Cookie', authCookies)
+        .field('name', 'Test Album')
+        .field('artist', 'Test Artist')
+        .attach('coverImage', testImageBuffer, 'old-cover.png')
+        .expect(201);
+
+      const productId = createResponse.body.id;
+      const oldCoverImage = createResponse.body.coverImage;
+
+      // Verify old file exists
+      const uploadsDir = path.join(process.cwd(), 'uploads');
+      const oldFileName = oldCoverImage.replace('/uploads/', '');
+      const oldImagePath = path.join(uploadsDir, oldFileName);
+      expect(fs.existsSync(oldImagePath)).toBe(true);
+
+      // Update with new image
+      const updateResponse = await request(app)
+        .put(`/api/products/${productId}`)
+        .set('Cookie', authCookies)
+        .field('name', 'Test Album Updated')
+        .field('artist', 'Test Artist')
+        .attach('coverImage', testImageBuffer, 'new-cover.png')
+        .expect(200);
+
+      const newCoverImage = updateResponse.body.coverImage;
+
+      // Verify old image is deleted
+      expect(fs.existsSync(oldImagePath)).toBe(false);
+
+      // Verify new image exists
+      const newFileName = newCoverImage.replace('/uploads/', '');
+      const newImagePath = path.join(uploadsDir, newFileName);
+      expect(fs.existsSync(newImagePath)).toBe(true);
+    });
+
     it('should return 404 for non-existent product', async () => {
       const testImageBuffer = Buffer.from([
         0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
@@ -175,17 +214,48 @@ describe('Products API', () => {
   });
 
   describe('DELETE /api/products/:id', () => {
-    it('should delete a product', async () => {
+    const testImageBuffer = Buffer.from([
+      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
+      0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+      0x08, 0x06, 0x00, 0x00, 0x00, 0x1f, 0x15, 0xc4, 0x89, 0x00, 0x00, 0x00,
+      0x0a, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9c, 0x63, 0x00, 0x01, 0x00, 0x00,
+      0x05, 0x00, 0x01, 0x0d, 0x0a, 0x2d, 0xb4, 0x00, 0x00, 0x00, 0x00, 0x49,
+      0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82,
+    ]);
+
+    it('should delete a product and its image file', async () => {
+      // Create a fresh product with image
+      const createResponse = await request(app)
+        .post('/api/products')
+        .set('Cookie', authCookies)
+        .field('name', 'Test Album')
+        .field('artist', 'Test Artist')
+        .attach('coverImage', testImageBuffer, 'test-cover.png')
+        .expect(201);
+
+      const productId = createResponse.body.id;
+      const coverImage = createResponse.body.coverImage;
+
+      // Verify image exists
+      const uploadsDir = path.join(process.cwd(), 'uploads');
+      const fileName = coverImage.replace('/uploads/', '');
+      const imagePath = path.join(uploadsDir, fileName);
+      expect(fs.existsSync(imagePath)).toBe(true);
+
+      // Delete the product
       await request(app)
-        .delete(`/api/products/${createdProductId}`)
+        .delete(`/api/products/${productId}`)
         .set('Cookie', authCookies)
         .expect(204);
 
-      // Verify it's deleted
+      // Verify product is deleted
       await request(app)
-        .get(`/api/products/${createdProductId}`)
+        .get(`/api/products/${productId}`)
         .set('Cookie', authCookies)
         .expect(404);
+
+      // Verify image file is also deleted
+      expect(fs.existsSync(imagePath)).toBe(false);
     });
 
     it('should return 404 for non-existent product', async () => {
@@ -196,37 +266,7 @@ describe('Products API', () => {
     });
   });
 
-  describe('File Upload', () => {
-    const testImageBuffer = Buffer.from([
-      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
-      0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
-      0x08, 0x06, 0x00, 0x00, 0x00, 0x1f, 0x15, 0xc4, 0x89, 0x00, 0x00, 0x00,
-      0x0a, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9c, 0x63, 0x00, 0x01, 0x00, 0x00,
-      0x05, 0x00, 0x01, 0x0d, 0x0a, 0x2d, 0xb4, 0x00, 0x00, 0x00, 0x00, 0x49,
-      0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82,
-    ]);
-
-    it('should upload an image with product creation', async () => {
-      const response = await request(app)
-        .post('/api/products')
-        .set('Cookie', authCookies)
-        .field('name', 'Abbey Road')
-        .field('artist', 'The Beatles')
-        .attach('coverImage', testImageBuffer, 'test-cover.png')
-        .expect(201);
-
-      expect(response.body).toHaveProperty('id');
-      expect(response.body.name).toBe('Abbey Road');
-      expect(response.body.artist).toBe('The Beatles');
-      expect(response.body.coverImage).toMatch(/\.png$/);
-
-      // Verify file was actually saved
-      const uploadsDir = path.join(process.cwd(), 'uploads');
-      const fileName = response.body.coverImage.replace('/uploads/', '');
-      const uploadedFile = path.join(uploadsDir, fileName);
-      expect(fs.existsSync(uploadedFile)).toBe(true);
-    });
-
+  describe('File Upload Validation', () => {
     it('should reject non-image files', async () => {
       const textBuffer = Buffer.from('This is not an image');
 
@@ -254,37 +294,6 @@ describe('Products API', () => {
         .expect(500);
 
       expect(response.body.error).toContain('File too large');
-    });
-
-    it('should update product with new image', async () => {
-      // First create a product with image
-      const createResponse = await request(app)
-        .post('/api/products')
-        .set('Cookie', authCookies)
-        .field('name', 'Test Album')
-        .field('artist', 'Test Artist')
-        .attach('coverImage', testImageBuffer, 'test-cover.png')
-        .expect(201);
-
-      const productId = createResponse.body.id;
-
-      // Update with new image
-      const updateResponse = await request(app)
-        .put(`/api/products/${productId}`)
-        .set('Cookie', authCookies)
-        .field('name', 'Test Album Updated')
-        .field('artist', 'Test Artist')
-        .attach('coverImage', testImageBuffer, 'updated-cover.png')
-        .expect(200);
-
-      expect(updateResponse.body.name).toBe('Test Album Updated');
-      expect(updateResponse.body.coverImage).toMatch(/\.png$/);
-
-      // Verify file was saved
-      const uploadsDir = path.join(process.cwd(), 'uploads');
-      const fileName = updateResponse.body.coverImage.replace('/uploads/', '');
-      const uploadedFile = path.join(uploadsDir, fileName);
-      expect(fs.existsSync(uploadedFile)).toBe(true);
     });
   });
 });
