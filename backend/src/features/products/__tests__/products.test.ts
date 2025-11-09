@@ -276,7 +276,7 @@ describe('Products API', () => {
         .field('name', 'Test Product')
         .field('artist', 'Test Artist')
         .attach('coverImage', textBuffer, 'test.txt')
-        .expect(500);
+        .expect(400);
 
       expect(response.body.error).toContain('Only image files are allowed');
     });
@@ -291,7 +291,7 @@ describe('Products API', () => {
         .field('name', 'Test Product')
         .field('artist', 'Test Artist')
         .attach('coverImage', largeBuffer, 'large-image.jpg')
-        .expect(500);
+        .expect(400);
 
       expect(response.body.error).toContain('File too large');
     });
