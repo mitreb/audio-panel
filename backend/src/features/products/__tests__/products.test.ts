@@ -397,6 +397,7 @@ describe('Products API', () => {
           .put(`/api/products/${productId}`)
           .set('Cookie', authCookies)
           .field('name', '')
+          .field('artist', 'Test Artist')
           .attach('coverImage', testImageBuffer, 'test-cover.png')
           .expect(400);
 
@@ -404,21 +405,41 @@ describe('Products API', () => {
           expect.arrayContaining([
             expect.objectContaining({
               field: 'name',
-              message: 'Product name cannot be empty',
+              message: 'Product name is required',
             }),
           ])
         );
       });
 
-      it('should accept partial update data', async () => {
+      it('should reject missing artist in update', async () => {
+        const response = await request(app)
+          .put(`/api/products/${productId}`)
+          .set('Cookie', authCookies)
+          .field('name', 'Updated Name')
+          .attach('coverImage', testImageBuffer, 'test-cover.png')
+          .expect(400);
+
+        expect(response.body.error).toBe('Validation error');
+        expect(response.body.details).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              field: 'artist',
+            }),
+          ])
+        );
+      });
+
+      it('should accept full update data', async () => {
         const response = await request(app)
           .put(`/api/products/${productId}`)
           .set('Cookie', authCookies)
           .field('name', 'Updated Product Name')
+          .field('artist', 'Updated Artist')
           .attach('coverImage', testImageBuffer, 'test-cover.png')
           .expect(200);
 
         expect(response.body.name).toBe('Updated Product Name');
+        expect(response.body.artist).toBe('Updated Artist');
       });
     });
   });

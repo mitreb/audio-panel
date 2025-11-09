@@ -26,20 +26,17 @@ export const createProductWithFileSchema = z.object({
     .max(100, 'Artist name must be less than 100 characters'),
 });
 
-// Schema for updating a product (all fields optional)
-// Note: coverImage file upload (if provided) is validated in the controller (req.file)
+// Schema for updating a product with PUT (all fields required)
+// Note: coverImage file upload is validated in the controller (req.file)
 export const updateProductSchema = z.object({
   name: z
     .string()
-    .min(1, 'Product name cannot be empty')
-    .max(100, 'Product name must be less than 100 characters')
-    .optional(),
+    .min(1, 'Product name is required')
+    .max(100, 'Product name must be less than 100 characters'),
   artist: z
     .string()
-    .min(1, 'Artist name cannot be empty')
-    .max(100, 'Artist name must be less than 100 characters')
-    .optional(),
-  coverImage: z.string().min(1).optional(),
+    .min(1, 'Artist name is required')
+    .max(100, 'Artist name must be less than 100 characters'),
 });
 
 // Schema for URL parameters

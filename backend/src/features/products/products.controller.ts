@@ -92,9 +92,11 @@ class ProductsController {
         return res.status(401).json({ error: 'Authentication required' });
       }
 
-      const updateData: Record<string, string> = {};
-      if (name) updateData.name = name;
-      if (artist) updateData.artist = artist;
+      const updateData: Record<string, string> = {
+        name,
+        artist,
+      };
+
       if (req.file) {
         updateData.coverImage = `/uploads/${req.file.filename}`;
       }
