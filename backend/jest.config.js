@@ -10,7 +10,7 @@ module.exports = {
       },
     ],
   },
-  roots: ['<rootDir>/src'],
+  roots: ['<rootDir>/src', '<rootDir>/__mocks__'],
   testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
   collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts'],
 };

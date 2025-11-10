@@ -2,6 +2,8 @@ import request from 'supertest';
 import app from '../../../app';
 import { PrismaClient } from '@prisma/client';
 
+jest.mock('uuid');
+
 const prisma = new PrismaClient();
 
 describe('Authentication API', () => {

@@ -3,6 +3,8 @@ import app from '../../../app';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
+jest.mock('uuid');
+
 const prisma = new PrismaClient();
 
 describe('Admin API', () => {

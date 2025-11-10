@@ -4,6 +4,8 @@ import { PrismaClient } from '@prisma/client';
 import path from 'path';
 import fs from 'fs';
 
+jest.mock('uuid');
+
 const prisma = new PrismaClient();
 
 describe('Products API', () => {
