@@ -4,6 +4,7 @@ import {
   ProductsPagination,
   DeleteProductDialog,
 } from '../components/products';
+import { PageLoader } from '@/components/page-loader';
 
 export const AdminProductsPage = () => {
   const {
@@ -22,7 +23,7 @@ export const AdminProductsPage = () => {
   } = useAdminProductsPage();
 
   if (isLoading) {
-    return <div className="text-center">Loading products...</div>;
+    return <PageLoader />;
   }
 
   if (error) {

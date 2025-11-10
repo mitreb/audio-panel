@@ -1,12 +1,13 @@
 import { useAdminStats } from '../hooks';
 import { Users, Package } from 'lucide-react';
 import { StatsCard, RecentProducts } from '../components/dashboard';
+import { PageLoader } from '@/components/page-loader';
 
 export const AdminDashboardPage = () => {
   const { data: stats, isLoading, error } = useAdminStats();
 
   if (isLoading) {
-    return <div className="text-center">Loading dashboard...</div>;
+    return <PageLoader />;
   }
 
   if (error) {

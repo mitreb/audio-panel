@@ -8,7 +8,8 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { UpdateProductForm } from '../components';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+import { PageLoader } from '@/components/page-loader';
 
 export const UpdateProductPage = () => {
   const {
@@ -24,14 +25,7 @@ export const UpdateProductPage = () => {
   } = useUpdateProductPage();
 
   if (isLoading) {
-    return (
-      <div className="container mx-auto max-w-2xl px-4 py-8">
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin" />
-          <span className="ml-2">Loading product...</span>
-        </div>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   if (queryError || !product) {

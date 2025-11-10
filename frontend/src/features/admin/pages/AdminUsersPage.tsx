@@ -4,6 +4,7 @@ import {
   UsersPagination,
   DeleteUserDialog,
 } from '../components/users';
+import { PageLoader } from '@/components/page-loader';
 
 export const AdminUsersPage = () => {
   const {
@@ -24,7 +25,7 @@ export const AdminUsersPage = () => {
   } = useAdminUsersPage();
 
   if (isLoading) {
-    return <div className="text-center">Loading users...</div>;
+    return <PageLoader />;
   }
 
   if (error) {
