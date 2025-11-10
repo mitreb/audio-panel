@@ -1,9 +1,5 @@
 import { useState } from 'react';
-import {
-  useAdminUsers,
-  useDeleteUser,
-  useUpdateUserRole,
-} from '../hooks';
+import { useAdminUsers, useDeleteUser, useUpdateUserRole } from '../hooks';
 import {
   Table,
   TableBody,

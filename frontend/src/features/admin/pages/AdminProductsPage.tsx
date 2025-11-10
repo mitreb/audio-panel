@@ -78,7 +78,9 @@ export const AdminProductsPage = () => {
 
   if (error) {
     return (
-      <div className="text-destructive text-center">Failed to load products</div>
+      <div className="text-destructive text-center">
+        Failed to load products
+      </div>
     );
   }
 
