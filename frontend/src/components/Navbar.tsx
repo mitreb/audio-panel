@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { Music, LogOut, User, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../features/auth';
-import { ModeToggle } from './ModeToggle';
+import { ModeToggle } from '../features/theme';
 
 export const Navbar = () => {
   const { user, logout } = useAuth();

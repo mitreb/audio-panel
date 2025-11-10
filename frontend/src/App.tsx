@@ -19,8 +19,8 @@ import {
   AdminUsersPage,
   AdminProductsPage,
 } from './features/admin';
+import { ThemeProvider } from './features/theme';
 import { Navbar } from './components';
-import { ThemeProvider } from './components/ThemeProvider';
 
 function AppContent() {
   const location = useLocation();
