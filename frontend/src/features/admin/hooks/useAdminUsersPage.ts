@@ -11,6 +11,12 @@ export const useAdminUsersPage = () => {
     id: string;
     name: string;
   } | null>(null);
+  const [toggleRoleDialogOpen, setToggleRoleDialogOpen] = useState(false);
+  const [userToToggle, setUserToToggle] = useState<{
+    id: string;
+    name: string;
+    role: 'USER' | 'ADMIN';
+  } | null>(null);
   const { user: currentUser } = useAuth();
 
   const { data, isLoading, error } = useAdminUsers(currentPage, ITEMS_PER_PAGE);
@@ -39,22 +45,35 @@ export const useAdminUsersPage = () => {
     setUserToDelete(null);
   };
 
-  const handleToggleRole = async (
+  const handleToggleRole = (
     userId: string,
     currentRole: 'USER' | 'ADMIN',
     userName: string
   ) => {
-    const newRole = currentRole === 'ADMIN' ? 'USER' : 'ADMIN';
-    const action = newRole === 'ADMIN' ? 'promote to admin' : 'demote to user';
+    setUserToToggle({ id: userId, name: userName, role: currentRole });
+    setToggleRoleDialogOpen(true);
+  };
 
-    if (confirm(`Are you sure you want to ${action} "${userName}"?`)) {
-      try {
-        await updateUserRoleMutation.mutateAsync({ userId, role: newRole });
-      } catch (err) {
-        console.error('Failed to update role', err);
-        alert('Failed to update user role');
-      }
+  const handleToggleRoleConfirm = async () => {
+    if (!userToToggle) return;
+
+    const newRole = userToToggle.role === 'ADMIN' ? 'USER' : 'ADMIN';
+
+    try {
+      await updateUserRoleMutation.mutateAsync({
+        userId: userToToggle.id,
+        role: newRole,
+      });
+      setToggleRoleDialogOpen(false);
+      setUserToToggle(null);
+    } catch (err) {
+      console.error('Failed to update role', err);
     }
+  };
+
+  const handleToggleRoleCancel = () => {
+    setToggleRoleDialogOpen(false);
+    setUserToToggle(null);
   };
 
   const handlePageChange = (page: number) => {
@@ -76,11 +95,17 @@ export const useAdminUsersPage = () => {
     deleteDialogOpen,
     userToDelete,
 
+    // Toggle role dialog state
+    toggleRoleDialogOpen,
+    userToToggle,
+
     // Actions
     handleDeleteClick,
     handleDeleteConfirm,
     handleDeleteCancel,
     handleToggleRole,
+    handleToggleRoleConfirm,
+    handleToggleRoleCancel,
     handlePageChange,
   };
 };

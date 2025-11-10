@@ -3,6 +3,7 @@ import {
   UsersTable,
   UsersPagination,
   DeleteUserDialog,
+  ToggleRoleDialog,
 } from '../components/users';
 import { PageLoader } from '@/components/page-loader';
 
@@ -17,10 +18,14 @@ export const AdminUsersPage = () => {
     error,
     deleteDialogOpen,
     userToDelete,
+    toggleRoleDialogOpen,
+    userToToggle,
     handleDeleteClick,
     handleDeleteConfirm,
     handleDeleteCancel,
     handleToggleRole,
+    handleToggleRoleConfirm,
+    handleToggleRoleCancel,
     handlePageChange,
   } = useAdminUsersPage();
 
@@ -61,6 +66,14 @@ export const AdminUsersPage = () => {
         userName={userToDelete?.name}
         onConfirm={handleDeleteConfirm}
         onCancel={handleDeleteCancel}
+      />
+
+      <ToggleRoleDialog
+        open={toggleRoleDialogOpen}
+        userName={userToToggle?.name}
+        currentRole={userToToggle?.role || 'USER'}
+        onConfirm={handleToggleRoleConfirm}
+        onCancel={handleToggleRoleCancel}
       />
     </div>
   );
