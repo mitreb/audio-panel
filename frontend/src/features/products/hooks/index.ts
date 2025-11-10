@@ -5,3 +5,4 @@ export { useCreateProductPage } from './useCreateProductPage';
 export { useUpdateProduct } from './useUpdateProduct';
 export { useUpdateProductPage } from './useUpdateProductPage';
 export { useDeleteProduct } from './useDeleteProduct';
+export { useUserProductsPage } from './useUserProductsPage';
