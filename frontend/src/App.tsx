@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router';
-import { LandingPage, NotFoundPage } from './pages';
+import { NotFoundPage } from './pages';
+import { LandingPage } from './features/landing';
 import {
   LoginPage,
   RegisterPage,
