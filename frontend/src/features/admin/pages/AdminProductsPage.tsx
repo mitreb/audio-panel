@@ -1,76 +1,25 @@
-import { useState } from 'react';
-import { useAdminProducts, useDeleteAdminProduct } from '../hooks';
+import { useAdminProductsPage } from '../hooks';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '../../../components/ui/table';
-import { Button } from '../../../components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '../../../components/ui/dialog';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from '../../../components/ui/pagination';
-import { Trash2 } from 'lucide-react';
-import { ProductImage } from '../../products';
-
-const ITEMS_PER_PAGE = 10;
+  ProductsTable,
+  ProductsPagination,
+  DeleteProductDialog,
+} from '../components/products';
 
 export const AdminProductsPage = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [productToDelete, setProductToDelete] = useState<{
-    id: string;
-    name: string;
-  } | null>(null);
-
-  const { data, isLoading, error } = useAdminProducts(
+  const {
+    products,
+    totalPages,
+    total,
     currentPage,
-    ITEMS_PER_PAGE
-  );
-  const deleteProductMutation = useDeleteAdminProduct();
-
-  const handleDeleteClick = (productId: string, productName: string) => {
-    setProductToDelete({ id: productId, name: productName });
-    setDeleteDialogOpen(true);
-  };
-
-  const handleDeleteConfirm = async () => {
-    if (!productToDelete) return;
-
-    try {
-      await deleteProductMutation.mutateAsync(productToDelete.id);
-      setDeleteDialogOpen(false);
-      setProductToDelete(null);
-    } catch (err) {
-      console.error('Failed to delete product', err);
-    }
-  };
-
-  const handleDeleteCancel = () => {
-    setDeleteDialogOpen(false);
-    setProductToDelete(null);
-  };
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+    isLoading,
+    error,
+    deleteDialogOpen,
+    productToDelete,
+    handleDeleteClick,
+    handleDeleteConfirm,
+    handleDeleteCancel,
+    handlePageChange,
+  } = useAdminProductsPage();
 
   if (isLoading) {
     return <div className="text-center">Loading products...</div>;
@@ -84,10 +33,6 @@ export const AdminProductsPage = () => {
     );
   }
 
-  const products = data?.data || [];
-  const totalPages = data?.pagination.totalPages || 1;
-  const total = data?.pagination.total || 0;
-
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -97,151 +42,20 @@ export const AdminProductsPage = () => {
         </div>
       </div>
 
-      <div className="border rounded-lg bg-card overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Cover</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Artist</TableHead>
-              <TableHead>Owner</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {products.map((product) => (
-              <TableRow key={product.id}>
-                <TableCell>
-                  <ProductImage
-                    src={product.coverImage}
-                    alt={product.name}
-                    wrapperClassName="w-12 h-12"
-                    className="w-full h-full"
-                  />
-                </TableCell>
-                <TableCell className="font-medium">{product.name}</TableCell>
-                <TableCell>{product.artist}</TableCell>
-                <TableCell>
-                  <div>
-                    <p className="font-medium">{product.user.name}</p>
-                    <p className="text-xs text-gray-500">
-                      {product.user.email}
-                    </p>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  {new Date(product.createdAt).toLocaleDateString()}
-                </TableCell>
-                <TableCell>
-                  <div className="flex justify-end">
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() =>
-                        handleDeleteClick(product.id, product.name)
-                      }
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <ProductsTable products={products} onDeleteClick={handleDeleteClick} />
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="mt-4">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                  className={
-                    currentPage === 1
-                      ? 'pointer-events-none opacity-50'
-                      : 'cursor-pointer'
-                  }
-                />
-              </PaginationItem>
+      <ProductsPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
 
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (page) => {
-                  // Show first page, last page, current page, and pages around current
-                  const showPage =
-                    page === 1 ||
-                    page === totalPages ||
-                    (page >= currentPage - 1 && page <= currentPage + 1);
-
-                  const showEllipsisBefore =
-                    page === currentPage - 2 && currentPage > 3;
-                  const showEllipsisAfter =
-                    page === currentPage + 2 && currentPage < totalPages - 2;
-
-                  if (showEllipsisBefore || showEllipsisAfter) {
-                    return (
-                      <PaginationItem key={page}>
-                        <PaginationEllipsis />
-                      </PaginationItem>
-                    );
-                  }
-
-                  if (!showPage) return null;
-
-                  return (
-                    <PaginationItem key={page}>
-                      <PaginationLink
-                        onClick={() => handlePageChange(page)}
-                        isActive={currentPage === page}
-                        className="cursor-pointer"
-                      >
-                        {page}
-                      </PaginationLink>
-                    </PaginationItem>
-                  );
-                }
-              )}
-
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() =>
-                    handlePageChange(Math.min(totalPages, currentPage + 1))
-                  }
-                  className={
-                    currentPage === totalPages
-                      ? 'pointer-events-none opacity-50'
-                      : 'cursor-pointer'
-                  }
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      )}
-
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete Product</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete "{productToDelete?.name}"? This
-              action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={handleDeleteCancel}>
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleDeleteConfirm}>
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <DeleteProductDialog
+        open={deleteDialogOpen}
+        productName={productToDelete?.name}
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+      />
     </div>
   );
 };
