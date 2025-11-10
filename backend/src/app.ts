@@ -38,6 +38,7 @@ app.get('/', (req, res) => {
   res.json({ message: 'Welcome to Audio Panel Backend' });
 });
 
+// API routes
 app.use('/api/auth', authRouter);
 app.use('/api/products', productsRouter);
 app.use('/api/admin', adminRouter);

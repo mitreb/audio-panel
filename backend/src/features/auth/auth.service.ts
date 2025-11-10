@@ -1,6 +1,10 @@
 import bcrypt from 'bcryptjs';
 import { PrismaClient } from '@prisma/client';
 import { generateToken } from '../../shared/utils/jwt';
+import {
+  BadRequestError,
+  UnauthorizedError,
+} from '../../shared/errors/custom-errors';
 
 class AuthService {
   private static prisma = new PrismaClient();
@@ -43,7 +47,7 @@ class AuthService {
     const existingUser = await this.findUserByEmail(email);
 
     if (existingUser) {
-      throw new Error('User with this email already exists');
+      throw new BadRequestError('User with this email already exists');
     }
 
     // Create user
@@ -60,14 +64,14 @@ class AuthService {
     const user = await this.findUserByEmail(email);
 
     if (!user) {
-      throw new Error('Invalid email or password');
+      throw new UnauthorizedError('Invalid email or password');
     }
 
     // Verify password
     const isValidPassword = await this.verifyPassword(password, user.password);
 
     if (!isValidPassword) {
-      throw new Error('Invalid email or password');
+      throw new UnauthorizedError('Invalid email or password');
     }
 
     // Generate JWT token

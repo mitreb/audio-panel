@@ -1,6 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import multer from 'multer';
+import {
+  AppError,
+  ValidationError,
+  InvalidFileTypeError,
+  FileTooLargeError,
+} from '../errors/custom-errors';
 
 export const errorHandler = (
   err: any,
@@ -8,6 +14,15 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
+  // Handle custom application errors
+  if (err instanceof AppError) {
+    const response: any = { error: err.message };
+    if (err instanceof ValidationError && err.details) {
+      response.details = err.details;
+    }
+    return res.status(err.statusCode).json(response);
+  }
+
   // Handle Prisma errors
   if (err instanceof PrismaClientKnownRequestError) {
     switch (err.code) {
@@ -43,17 +58,6 @@ export const errorHandler = (
       return res.status(400).json({ error: 'Unexpected file field' });
     }
     return res.status(400).json({ error: err.message });
-  }
-
-  if (err instanceof Error) {
-    if (err.message === 'Only image files are allowed!') {
-      return res.status(400).json({ error: 'Only image files are allowed' });
-    }
-    if (err.message.includes('File too large')) {
-      return res
-        .status(400)
-        .json({ error: 'File too large. Maximum 5MB allowed.' });
-    }
   }
 
   // Generic error fallback

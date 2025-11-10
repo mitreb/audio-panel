@@ -2,6 +2,7 @@ import multer from 'multer';
 import path from 'path';
 import { Request } from 'express';
 import { config } from './env';
+import { InvalidFileTypeError } from '../shared/errors/custom-errors';
 
 // Configure storage based on environment
 export const storage = config.USE_CLOUD_STORAGE
@@ -29,7 +30,7 @@ export const imageFileFilter = (
   if (file.mimetype.startsWith('image/')) {
     cb(null, true);
   } else {
-    cb(new Error('Only image files are allowed!'));
+    cb(new InvalidFileTypeError());
   }
 };
 

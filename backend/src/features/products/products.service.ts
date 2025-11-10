@@ -4,6 +4,10 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../../config/env';
 import { deleteFromGCS, extractFilename } from '../../shared/utils/storage';
+import {
+  NotFoundError,
+  ForbiddenError,
+} from '../../shared/errors/custom-errors';
 
 class ProductsService {
   private static prisma = new PrismaClient();
@@ -70,11 +74,11 @@ class ProductsService {
     });
 
     if (!existingProduct) {
-      throw new Error('Product not found');
+      throw new NotFoundError('Product not found');
     }
 
     if (existingProduct.userId !== userId) {
-      throw new Error('Not authorized to update this product');
+      throw new ForbiddenError('Not authorized to update this product');
     }
 
     // If updating coverImage, delete the old image file
@@ -107,11 +111,11 @@ class ProductsService {
     });
 
     if (!existingProduct) {
-      throw new Error('Product not found');
+      throw new NotFoundError('Product not found');
     }
 
     if (existingProduct.userId !== userId) {
-      throw new Error('Not authorized to delete this product');
+      throw new ForbiddenError('Not authorized to delete this product');
     }
 
     // Delete the product from database
