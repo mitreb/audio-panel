@@ -62,9 +62,7 @@ export function RegisterForm({
           className="mt-1"
         />
         {errors.password && (
-          <p className="text-sm text-red-600 mt-1">
-            {errors.password.message}
-          </p>
+          <p className="text-sm text-red-600 mt-1">{errors.password.message}</p>
         )}
       </div>
 
