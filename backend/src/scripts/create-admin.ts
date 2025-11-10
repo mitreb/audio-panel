@@ -18,9 +18,11 @@ function question(query: string): Promise<string> {
 async function createAdminUser() {
   console.log('=== Create Admin User ===\n');
 
-  const email = await question('Email: ');
-  const password = await question('Password: ');
-  const name = await question('Name: ');
+  // Check if command-line arguments are provided
+  const isNonInteractive = process.argv.length > 2;
+  const email = process.argv[2] || (await question('Email: '));
+  const password = process.argv[3] || (await question('Password: '));
+  const name = process.argv[4] || (await question('Name: '));
 
   try {
     // Check if user already exists
@@ -31,17 +33,26 @@ async function createAdminUser() {
     if (existingUser) {
       console.log('\n❌ User with this email already exists!');
 
-      // Ask if they want to promote existing user
-      const promote = await question(
-        '\nDo you want to promote this user to admin? (yes/no): '
-      );
-
-      if (promote.toLowerCase() === 'yes' || promote.toLowerCase() === 'y') {
+      // Promote to admin if non-interactive
+      if (isNonInteractive) {
         await prisma.user.update({
           where: { email },
           data: { role: 'ADMIN' },
         });
         console.log('\n✅ User promoted to admin successfully!');
+      } else {
+        // Ask if they want to promote existing user
+        const promote = await question(
+          '\nDo you want to promote this user to admin? (yes/no): '
+        );
+
+        if (promote.toLowerCase() === 'yes' || promote.toLowerCase() === 'y') {
+          await prisma.user.update({
+            where: { email },
+            data: { role: 'ADMIN' },
+          });
+          console.log('\n✅ User promoted to admin successfully!');
+        }
       }
     } else {
       // Hash password
