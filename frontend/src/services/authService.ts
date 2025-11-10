@@ -25,15 +25,15 @@ export class AuthService {
   }
 
   // Get current user info
-  static async getMe(): Promise<{ user: User }> {
-    const response = await api.get('/auth/me');
+  static async getUser(): Promise<{ user: User }> {
+    const response = await api.get('/auth/user');
     return response.data;
   }
 
   // Check if user is authenticated
   static async checkAuth(): Promise<User | null> {
     try {
-      const response = await this.getMe();
+      const response = await this.getUser();
       return response.user;
     } catch {
       return null;
