@@ -7,6 +7,9 @@ export { AdminDashboardPage } from './pages/AdminDashboardPage';
 export { AdminUsersPage } from './pages/AdminUsersPage';
 export { AdminProductsPage } from './pages/AdminProductsPage';
 
+// Hooks
+export * from './hooks';
+
 // Services
 export { adminService } from './services/admin.service';
 export type { PaginatedResponse } from './services/admin.service';

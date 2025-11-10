@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react';
-import { adminService } from '../services/admin.service';
-import type { AdminProduct } from '../types/admin.types';
+import { useState } from 'react';
+import { useAdminProducts, useDeleteAdminProduct } from '../hooks';
 import {
   Table,
   TableBody,
@@ -33,37 +32,18 @@ import { ProductImage } from '../../products';
 const ITEMS_PER_PAGE = 10;
 
 export const AdminProductsPage = () => {
-  const [products, setProducts] = useState<AdminProduct[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [total, setTotal] = useState(0);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<{
     id: string;
     name: string;
   } | null>(null);
 
-  useEffect(() => {
-    loadProducts(currentPage);
-  }, [currentPage]);
-
-  const loadProducts = async (page: number) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await adminService.getAllProducts(page, ITEMS_PER_PAGE);
-      setProducts(response.data);
-      setTotalPages(response.pagination.totalPages);
-      setTotal(response.pagination.total);
-    } catch (err) {
-      console.error('Failed to load products', err);
-      setError('Failed to load products');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data, isLoading, error } = useAdminProducts(
+    currentPage,
+    ITEMS_PER_PAGE
+  );
+  const deleteProductMutation = useDeleteAdminProduct();
 
   const handleDeleteClick = (productId: string, productName: string) => {
     setProductToDelete({ id: productId, name: productName });
@@ -74,13 +54,11 @@ export const AdminProductsPage = () => {
     if (!productToDelete) return;
 
     try {
-      await adminService.deleteProduct(productToDelete.id);
-      await loadProducts(currentPage);
+      await deleteProductMutation.mutateAsync(productToDelete.id);
       setDeleteDialogOpen(false);
       setProductToDelete(null);
     } catch (err) {
       console.error('Failed to delete product', err);
-      setError('Failed to delete product');
     }
   };
 
@@ -89,18 +67,24 @@ export const AdminProductsPage = () => {
     setProductToDelete(null);
   };
 
-  if (loading) {
-    return <div className="text-center">Loading products...</div>;
-  }
-
-  if (error) {
-    return <div className="text-destructive text-center">{error}</div>;
-  }
-
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  if (isLoading) {
+    return <div className="text-center">Loading products...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="text-destructive text-center">Failed to load products</div>
+    );
+  }
+
+  const products = data?.data || [];
+  const totalPages = data?.pagination.totalPages || 1;
+  const total = data?.pagination.total || 0;
 
   return (
     <div>

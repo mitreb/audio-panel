@@ -1,6 +1,4 @@
-import { useEffect, useState } from 'react';
-import { adminService } from '../services/admin.service';
-import type { AdminStats } from '../types/admin.types';
+import { useAdminStats } from '../hooks';
 import {
   Card,
   CardContent,
@@ -11,34 +9,18 @@ import { Users, Package } from 'lucide-react';
 import { ProductImage } from '../../products';
 
 export const AdminDashboardPage = () => {
-  const [stats, setStats] = useState<AdminStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: stats, isLoading, error } = useAdminStats();
 
-  useEffect(() => {
-    loadStats();
-  }, []);
-
-  const loadStats = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await adminService.getStats();
-      setStats(data);
-    } catch (err) {
-      console.error('Failed to load stats', err);
-      setError('Failed to load dashboard statistics');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) {
+  if (isLoading) {
     return <div className="text-center">Loading dashboard...</div>;
   }
 
   if (error) {
-    return <div className="text-destructive text-center">{error}</div>;
+    return (
+      <div className="text-destructive text-center">
+        Failed to load dashboard statistics
+      </div>
+    );
   }
 
   return (

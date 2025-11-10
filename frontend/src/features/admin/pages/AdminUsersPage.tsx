@@ -1,6 +1,9 @@
-import { useEffect, useState } from 'react';
-import { adminService } from '../services/admin.service';
-import type { AdminUser } from '../types/admin.types';
+import { useState } from 'react';
+import {
+  useAdminUsers,
+  useDeleteUser,
+  useUpdateUserRole,
+} from '../hooks';
 import {
   Table,
   TableBody,
@@ -34,12 +37,7 @@ import { useAuth } from '../../auth';
 const ITEMS_PER_PAGE = 10;
 
 export const AdminUsersPage = () => {
-  const [users, setUsers] = useState<AdminUser[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [total, setTotal] = useState(0);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<{
     id: string;
@@ -47,25 +45,9 @@ export const AdminUsersPage = () => {
   } | null>(null);
   const { user: currentUser } = useAuth();
 
-  useEffect(() => {
-    loadUsers(currentPage);
-  }, [currentPage]);
-
-  const loadUsers = async (page: number) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await adminService.getUsers(page, ITEMS_PER_PAGE);
-      setUsers(response.data);
-      setTotalPages(response.pagination.totalPages);
-      setTotal(response.pagination.total);
-    } catch (err) {
-      console.error('Failed to load users', err);
-      setError('Failed to load users');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data, isLoading, error } = useAdminUsers(currentPage, ITEMS_PER_PAGE);
+  const deleteUserMutation = useDeleteUser();
+  const updateUserRoleMutation = useUpdateUserRole();
 
   const handleDeleteClick = (userId: string, userName: string) => {
     setUserToDelete({ id: userId, name: userName });
@@ -76,13 +58,11 @@ export const AdminUsersPage = () => {
     if (!userToDelete) return;
 
     try {
-      await adminService.deleteUser(userToDelete.id);
-      await loadUsers(currentPage);
+      await deleteUserMutation.mutateAsync(userToDelete.id);
       setDeleteDialogOpen(false);
       setUserToDelete(null);
     } catch (err) {
       console.error('Failed to delete user', err);
-      setError('Failed to delete user');
     }
   };
 
@@ -101,8 +81,7 @@ export const AdminUsersPage = () => {
 
     if (confirm(`Are you sure you want to ${action} "${userName}"?`)) {
       try {
-        await adminService.updateUserRole(userId, newRole);
-        await loadUsers(currentPage);
+        await updateUserRoleMutation.mutateAsync({ userId, role: newRole });
       } catch (err) {
         console.error('Failed to update role', err);
         alert('Failed to update user role');
@@ -110,18 +89,24 @@ export const AdminUsersPage = () => {
     }
   };
 
-  if (loading) {
-    return <div className="text-center">Loading users...</div>;
-  }
-
-  if (error) {
-    return <div className="text-destructive text-center">{error}</div>;
-  }
-
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  if (isLoading) {
+    return <div className="text-center">Loading users...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="text-destructive text-center">Failed to load users</div>
+    );
+  }
+
+  const users = data?.data || [];
+  const totalPages = data?.pagination.totalPages || 1;
+  const total = data?.pagination.total || 0;
 
   return (
     <div>
