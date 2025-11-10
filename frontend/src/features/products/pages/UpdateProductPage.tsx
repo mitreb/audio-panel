@@ -11,7 +11,7 @@ import { UpdateProductForm } from '../components';
 import { ArrowLeft } from 'lucide-react';
 import { PageLoader } from '@/components/page-loader';
 
-export const UpdateProductPage = () => {
+export function UpdateProductPage() {
   const {
     form,
     product,
@@ -65,4 +65,4 @@ export const UpdateProductPage = () => {
       </Card>
     </div>
   );
-};
+}

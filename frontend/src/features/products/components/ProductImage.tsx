@@ -15,12 +15,12 @@ interface ImgProps {
  * - Shows a skeleton while loading.
  * - Falls back to a placeholder if the image fails to load or if the src is not provided.
  */
-export const ProductImage = ({
+export function ProductImage({
   src,
   alt,
   className,
   wrapperClassName,
-}: ImgProps) => {
+}: ImgProps) {
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(!!src);
 
@@ -54,4 +54,4 @@ export const ProductImage = ({
       />
     </div>
   );
-};
+}

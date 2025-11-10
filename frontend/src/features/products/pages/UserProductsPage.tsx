@@ -9,7 +9,7 @@ import {
   DeleteProductDialog,
 } from '../components';
 
-export const UserProductsPage = () => {
+export function UserProductsPage() {
   const {
     products,
     totalPages,
@@ -57,4 +57,4 @@ export const UserProductsPage = () => {
       </div>
     </div>
   );
-};
+}

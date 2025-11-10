@@ -10,7 +10,7 @@ import {
 import { CreateProductForm } from '../components';
 import { ArrowLeft } from 'lucide-react';
 
-export const CreateProductPage = () => {
+export function CreateProductPage() {
   const {
     form,
     selectedFile,
@@ -53,4 +53,4 @@ export const CreateProductPage = () => {
       </Card>
     </div>
   );
-};
+}

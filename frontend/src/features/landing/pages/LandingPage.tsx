@@ -1,6 +1,6 @@
 import { HeroSection, FeaturesSection, LandingFooter } from '../components';
 
-export const LandingPage = () => {
+export function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen">
       <HeroSection />
@@ -8,4 +8,4 @@ export const LandingPage = () => {
       <LandingFooter />
     </div>
   );
-};
+}

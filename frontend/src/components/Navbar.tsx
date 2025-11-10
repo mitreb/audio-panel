@@ -4,7 +4,7 @@ import { Music, LogOut, User, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../features/auth';
 import { ModeToggle } from '../features/theme';
 
-export const Navbar = () => {
+export function Navbar() {
   const { user, logout } = useAuth();
   const location = useLocation();
   const isLandingPage = location.pathname === '/';
@@ -141,4 +141,4 @@ export const Navbar = () => {
       </div>
     </nav>
   );
-};
+}

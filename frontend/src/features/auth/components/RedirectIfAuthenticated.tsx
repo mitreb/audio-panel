@@ -15,7 +15,7 @@ export function RedirectIfAuthenticated({
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
-    return null; // or a loading spinner if desired
+    return null;
   }
 
   if (user) {

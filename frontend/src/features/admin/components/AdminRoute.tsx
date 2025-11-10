@@ -2,7 +2,7 @@ import { Navigate } from 'react-router';
 import { useAuth } from '../../auth';
 import { AdminLayout } from './AdminLayout';
 
-export const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+export function AdminRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
@@ -14,4 +14,4 @@ export const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   return <AdminLayout>{children}</AdminLayout>;
-};
+}

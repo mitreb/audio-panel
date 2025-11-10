@@ -7,7 +7,7 @@ import {
 } from '../components/users';
 import { PageLoader } from '@/components/page-loader';
 
-export const AdminUsersPage = () => {
+export function AdminUsersPage() {
   const {
     users,
     totalPages,
@@ -77,4 +77,4 @@ export const AdminUsersPage = () => {
       />
     </div>
   );
-};
+}

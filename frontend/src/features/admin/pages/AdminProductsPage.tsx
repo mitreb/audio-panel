@@ -6,7 +6,7 @@ import {
 } from '../components/products';
 import { PageLoader } from '@/components/page-loader';
 
-export const AdminProductsPage = () => {
+export function AdminProductsPage() {
   const {
     products,
     totalPages,
@@ -59,4 +59,4 @@ export const AdminProductsPage = () => {
       />
     </div>
   );
-};
+}

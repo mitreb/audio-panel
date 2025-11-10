@@ -3,7 +3,7 @@ import { Users, Package } from 'lucide-react';
 import { StatsCard, RecentProducts } from '../components/dashboard';
 import { PageLoader } from '@/components/page-loader';
 
-export const AdminDashboardPage = () => {
+export function AdminDashboardPage() {
   const { data: stats, isLoading, error } = useAdminStats();
 
   if (isLoading) {
@@ -42,4 +42,4 @@ export const AdminDashboardPage = () => {
       <RecentProducts products={stats?.recentProducts} />
     </div>
   );
-};
+}
