@@ -1,3 +1,2 @@
 export { ProductImage } from './ProductImage';
-export { CoverImageUpload } from './CoverImageUpload';
-export { CreateProductForm } from './CreateProductForm';
+export { CoverImageUpload, CreateProductForm } from './create';

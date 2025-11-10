@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/form';
 import { CoverImageUpload } from './CoverImageUpload';
 import type { UseFormReturn } from 'react-hook-form';
-import type { CreateProductFormData } from '../hooks/useCreateProductPage';
+import type { CreateProductFormData } from '../../hooks/useCreateProductPage';
 
 interface CreateProductFormProps {
   form: UseFormReturn<CreateProductFormData>;
