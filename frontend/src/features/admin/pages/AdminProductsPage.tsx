@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { adminService } from '../services/adminService';
-import type { AdminProduct } from '../types/admin';
+import { adminService } from '../services/admin.service';
+import type { AdminProduct } from '../types/admin.types';
 import {
   Table,
   TableBody,
@@ -8,8 +8,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../components/ui/table';
-import { Button } from '../components/ui/button';
+} from '../../../components/ui/table';
+import { Button } from '../../../components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -17,7 +17,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../components/ui/dialog';
+} from '../../../components/ui/dialog';
 import {
   Pagination,
   PaginationContent,
@@ -26,9 +26,9 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from '../components/ui/pagination';
+} from '../../../components/ui/pagination';
 import { Trash2 } from 'lucide-react';
-import { ProductImage } from '../features/products';
+import { ProductImage } from '../../products';
 
 const ITEMS_PER_PAGE = 10;
 

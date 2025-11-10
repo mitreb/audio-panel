@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
-import { adminService } from '../services/adminService';
-import type { AdminStats } from '../types/admin';
+import { adminService } from '../services/admin.service';
+import type { AdminStats } from '../types/admin.types';
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from '../components/ui/card';
+} from '../../../components/ui/card';
 import { Users, Package } from 'lucide-react';
-import { ProductImage } from '../features/products';
+import { ProductImage } from '../../products';
 
 export const AdminDashboardPage = () => {
   const [stats, setStats] = useState<AdminStats | null>(null);

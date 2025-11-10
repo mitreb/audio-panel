@@ -1,5 +1,5 @@
-import api from './api';
-import type { AdminStats, AdminUser, AdminProduct } from '../types/admin';
+import api from '../../../services/api';
+import type { AdminStats, AdminUser, AdminProduct } from '../types/admin.types';
 
 export interface PaginatedResponse<T> {
   data: T[];

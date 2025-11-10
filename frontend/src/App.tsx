@@ -1,11 +1,5 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router';
-import {
-  LandingPage,
-  AdminDashboardPage,
-  AdminUsersPage,
-  AdminProductsPage,
-  NotFoundPage,
-} from './pages';
+import { LandingPage, NotFoundPage } from './pages';
 import {
   LoginPage,
   RegisterPage,
@@ -18,8 +12,13 @@ import {
   UpdateProductPage,
   UserProductsPage,
 } from './features/products';
+import {
+  AdminRoute,
+  AdminDashboardPage,
+  AdminUsersPage,
+  AdminProductsPage,
+} from './features/admin';
 import { Navbar } from './components';
-import { AdminRoute } from './components/AdminRoute';
 import { ThemeProvider } from './components/ThemeProvider';
 
 function AppContent() {
