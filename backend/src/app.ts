@@ -30,8 +30,17 @@ app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
     message: 'Audio Panel Backend is running',
-    environment: config.NODE_ENV,
-    useCloudStorage: config.USE_CLOUD_STORAGE,
+    config: {
+      NODE_ENV: config.NODE_ENV,
+      PORT: config.PORT,
+      FRONTEND_URL: config.FRONTEND_URL,
+      USE_CLOUD_STORAGE: config.USE_CLOUD_STORAGE,
+      GCP_PROJECT_ID: config.GCP_PROJECT_ID,
+      GCS_BUCKET_NAME: config.GCS_BUCKET_NAME,
+      cookieSecure: config.cookieSecure,
+      cookieSameSite: config.cookieSameSite,
+      // Sensitive values excluded: JWT_SECRET, DATABASE_URL
+    },
   });
 });
 

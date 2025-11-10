@@ -1,5 +1,3 @@
-# Only used in development
-
 FROM node:25-alpine AS builder
 
 WORKDIR /app
