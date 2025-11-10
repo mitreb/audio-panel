@@ -71,16 +71,15 @@ export const useUpdateProductPage = () => {
       return;
     }
 
-    // Validate that cover image is selected
-    if (!selectedFile) {
-      return;
-    }
-
     const updateData: UpdateProductData = {
       name: data.name,
       artist: data.artist,
-      coverImage: selectedFile,
     };
+
+    // Only include coverImage if it was provided
+    if (data.coverImage) {
+      updateData.coverImage = data.coverImage;
+    }
 
     try {
       await updateProductMutation.mutateAsync({ id, data: updateData });

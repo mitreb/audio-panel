@@ -17,7 +17,7 @@ export interface CreateProductData {
 export interface UpdateProductData {
   name: string;
   artist: string;
-  coverImage: File;
+  coverImage?: File;
 }
 
 export interface ApiError {

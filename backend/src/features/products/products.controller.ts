@@ -97,21 +97,30 @@ class ProductsController {
         return res.status(401).json({ error: 'Authentication required' });
       }
 
-      if (!req.file) {
-        return res.status(400).json({ error: 'Cover image is required' });
+      // Build update data with only provided fields
+      const updateData: Record<string, string> = {};
+
+      if (name !== undefined) {
+        updateData.name = name;
       }
 
-      const coverImage = await getImageUrl(req.file);
-
-      if (!coverImage) {
-        return res.status(500).json({ error: 'Failed to upload image' });
+      if (artist !== undefined) {
+        updateData.artist = artist;
       }
 
-      const updateData: Record<string, string> = {
-        name,
-        artist,
-        coverImage,
-      };
+      // Handle optional cover image
+      if (req.file) {
+        const coverImage = await getImageUrl(req.file);
+        if (!coverImage) {
+          return res.status(500).json({ error: 'Failed to upload image' });
+        }
+        updateData.coverImage = coverImage;
+      }
+
+      // Validate that at least one field is being updated
+      if (Object.keys(updateData).length === 0) {
+        return res.status(400).json({ error: 'No fields to update' });
+      }
 
       const product = await ProductsService.updateProduct(
         id,

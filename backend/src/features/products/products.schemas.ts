@@ -26,17 +26,19 @@ export const createProductWithFileSchema = z.object({
     .max(100, 'Artist name must be less than 100 characters'),
 });
 
-// Schema for updating a product with PUT (all fields required)
+// Schema for updating a product with PATCH (all fields optional)
 // Note: coverImage file upload is validated in the controller (req.file)
-export const updateProductSchema = z.object({
+export const patchProductSchema = z.object({
   name: z
     .string()
     .min(1, 'Product name is required')
-    .max(100, 'Product name must be less than 100 characters'),
+    .max(100, 'Product name must be less than 100 characters')
+    .optional(),
   artist: z
     .string()
     .min(1, 'Artist name is required')
-    .max(100, 'Artist name must be less than 100 characters'),
+    .max(100, 'Artist name must be less than 100 characters')
+    .optional(),
 });
 
 // Schema for URL parameters
@@ -46,5 +48,5 @@ export const productParamsSchema = z.object({
 
 // Types derived from schemas
 export type CreateProductInput = z.infer<typeof createProductSchema>;
-export type UpdateProductInput = z.infer<typeof updateProductSchema>;
+export type PatchProductInput = z.infer<typeof patchProductSchema>;
 export type ProductParams = z.infer<typeof productParamsSchema>;

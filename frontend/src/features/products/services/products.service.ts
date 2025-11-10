@@ -69,7 +69,7 @@ export class ProductService {
       formData.append('coverImage', data.coverImage);
     }
 
-    const response = await api.put<Product>(`/products/${id}`, formData, {
+    const response = await api.patch<Product>(`/products/${id}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

@@ -132,7 +132,7 @@ describe('Products API', () => {
     });
   });
 
-  describe('PUT /api/products/:id', () => {
+  describe('PATCH /api/products/:id', () => {
     const testImageBuffer = Buffer.from([
       0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
       0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
@@ -142,9 +142,9 @@ describe('Products API', () => {
       0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82,
     ]);
 
-    it('should update a product', async () => {
+    it('should update a product with all fields', async () => {
       const response = await request(app)
-        .put(`/api/products/${createdProductId}`)
+        .patch(`/api/products/${createdProductId}`)
         .set('Cookie', authCookies)
         .field('name', 'Dark Side of the Moon (Remastered)')
         .field('artist', 'Pink Floyd')
@@ -154,6 +154,45 @@ describe('Products API', () => {
       expect(response.body.name).toBe('Dark Side of the Moon (Remastered)');
       expect(response.body.artist).toBe('Pink Floyd');
       expect(response.body.updatedAt).not.toBe(response.body.createdAt);
+    });
+
+    it('should update only name field', async () => {
+      const response = await request(app)
+        .patch(`/api/products/${createdProductId}`)
+        .set('Cookie', authCookies)
+        .field('name', 'New Album Name')
+        .expect(200);
+
+      expect(response.body.name).toBe('New Album Name');
+      expect(response.body.artist).toBe('Pink Floyd'); // Should keep old artist
+    });
+
+    it('should update only artist field', async () => {
+      const response = await request(app)
+        .patch(`/api/products/${createdProductId}`)
+        .set('Cookie', authCookies)
+        .field('artist', 'New Artist Name')
+        .expect(200);
+
+      expect(response.body.artist).toBe('New Artist Name');
+    });
+
+    it('should update only cover image', async () => {
+      const response = await request(app)
+        .patch(`/api/products/${createdProductId}`)
+        .set('Cookie', authCookies)
+        .attach('coverImage', testImageBuffer, 'new-cover.png')
+        .expect(200);
+
+      expect(response.body.coverImage).toBeTruthy();
+      expect(response.body.coverImage).toContain('/uploads/');
+    });
+
+    it('should return 400 when no fields provided', async () => {
+      await request(app)
+        .patch(`/api/products/${createdProductId}`)
+        .set('Cookie', authCookies)
+        .expect(400);
     });
 
     it('should delete old image when updating with new image', async () => {
@@ -177,7 +216,7 @@ describe('Products API', () => {
 
       // Update with new image
       const updateResponse = await request(app)
-        .put(`/api/products/${productId}`)
+        .patch(`/api/products/${productId}`)
         .set('Cookie', authCookies)
         .field('name', 'Test Album Updated')
         .field('artist', 'Test Artist')
@@ -206,7 +245,7 @@ describe('Products API', () => {
       ]);
 
       await request(app)
-        .put('/api/products/non-existent-id')
+        .patch('/api/products/non-existent-id')
         .set('Cookie', authCookies)
         .field('name', 'Dark Side of the Moon')
         .field('artist', 'Pink Floyd')
@@ -379,7 +418,7 @@ describe('Products API', () => {
       });
     });
 
-    describe('PUT /api/products/:id field validation', () => {
+    describe('PATCH /api/products/:id field validation', () => {
       let productId: string;
 
       beforeEach(async () => {
@@ -396,11 +435,9 @@ describe('Products API', () => {
 
       it('should reject empty name in update', async () => {
         const response = await request(app)
-          .put(`/api/products/${productId}`)
+          .patch(`/api/products/${productId}`)
           .set('Cookie', authCookies)
           .field('name', '')
-          .field('artist', 'Test Artist')
-          .attach('coverImage', testImageBuffer, 'test-cover.png')
           .expect(400);
 
         expect(response.body.details).toEqual(
@@ -413,27 +450,37 @@ describe('Products API', () => {
         );
       });
 
-      it('should reject missing artist in update', async () => {
+      it('should reject empty artist in update', async () => {
         const response = await request(app)
-          .put(`/api/products/${productId}`)
+          .patch(`/api/products/${productId}`)
           .set('Cookie', authCookies)
-          .field('name', 'Updated Name')
-          .attach('coverImage', testImageBuffer, 'test-cover.png')
+          .field('artist', '')
           .expect(400);
 
-        expect(response.body.error).toBe('Validation error');
         expect(response.body.details).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
               field: 'artist',
+              message: 'Artist name is required',
             }),
           ])
         );
       });
 
+      it('should accept partial update with only name', async () => {
+        const response = await request(app)
+          .patch(`/api/products/${productId}`)
+          .set('Cookie', authCookies)
+          .field('name', 'Updated Product Name')
+          .expect(200);
+
+        expect(response.body.name).toBe('Updated Product Name');
+        expect(response.body.artist).toBe('Original Artist'); // Should remain unchanged
+      });
+
       it('should accept full update data', async () => {
         const response = await request(app)
-          .put(`/api/products/${productId}`)
+          .patch(`/api/products/${productId}`)
           .set('Cookie', authCookies)
           .field('name', 'Updated Product Name')
           .field('artist', 'Updated Artist')

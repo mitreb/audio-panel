@@ -18,7 +18,7 @@ export function UpdateCoverImageUpload({
 }: UpdateCoverImageUploadProps) {
   return (
     <div className="space-y-4">
-      <Label htmlFor="coverImage">Cover Image</Label>
+      <Label htmlFor="coverImage">Cover Image (Optional)</Label>
 
       {/* Show current image if it exists */}
       {product.coverImage && !selectedFile && (

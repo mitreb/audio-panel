@@ -5,7 +5,7 @@ import { uploadCoverImage } from './products.middleware';
 import {
   createProductWithFileSchema,
   productParamsSchema,
-  updateProductSchema,
+  patchProductSchema,
 } from './products.schemas';
 import {
   validateBody,
@@ -31,12 +31,12 @@ router.post(
   ProductsController.createProduct
 );
 
-router.put(
+router.patch(
   '/:id',
   authenticateToken,
   validateParams(productParamsSchema),
   uploadCoverImage,
-  validateBody(updateProductSchema),
+  validateBody(patchProductSchema),
   ProductsController.updateProduct
 );
 
