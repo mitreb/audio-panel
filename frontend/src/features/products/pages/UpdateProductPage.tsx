@@ -116,10 +116,17 @@ export const UpdateProductPage = () => {
       setLoading(true);
       setError(null);
 
+      // Validate that cover image is selected
+      if (!selectedFile) {
+        setError('Cover image is required');
+        setLoading(false);
+        return;
+      }
+
       const updateData: UpdateProductData = {
         name: data.name,
         artist: data.artist,
-        coverImage: selectedFile || undefined,
+        coverImage: selectedFile,
       };
 
       await ProductService.updateProduct(id, updateData);
