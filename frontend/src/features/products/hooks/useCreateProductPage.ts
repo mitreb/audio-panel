@@ -15,7 +15,7 @@ const formSchema = z.object({
     .string()
     .min(1, 'Artist name is required')
     .max(100, 'Artist name must be less than 100 characters'),
-  coverImage: z.instanceof(File).optional(),
+  coverImage: z.instanceof(File, { message: 'Cover image is required' }),
 });
 
 export type CreateProductFormData = z.infer<typeof formSchema>;
@@ -49,6 +49,7 @@ export const useCreateProductPage = () => {
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
       form.setValue('coverImage', file);
+      form.clearErrors('coverImage'); // Clear validation error when file is selected
     } else {
       setPreviewUrl(null);
     }

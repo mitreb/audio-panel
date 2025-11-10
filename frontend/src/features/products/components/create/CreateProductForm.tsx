@@ -74,10 +74,22 @@ export function CreateProductForm({
             )}
           />
 
-          <CoverImageUpload
-            selectedFile={selectedFile}
-            previewUrl={previewUrl}
-            onFileChange={onFileChange}
+          <FormField
+            control={form.control}
+            name="coverImage"
+            render={() => (
+              <FormItem>
+                <FormLabel>Cover Image</FormLabel>
+                <FormControl>
+                  <CoverImageUpload
+                    selectedFile={selectedFile}
+                    previewUrl={previewUrl}
+                    onFileChange={onFileChange}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
 
           <div className="flex gap-4 pt-4">

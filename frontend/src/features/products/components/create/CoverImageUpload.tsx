@@ -1,5 +1,4 @@
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Upload } from 'lucide-react';
 
 interface CoverImageUploadProps {
@@ -15,7 +14,6 @@ export function CoverImageUpload({
 }: CoverImageUploadProps) {
   return (
     <div className="space-y-4">
-      <Label htmlFor="coverImage">Cover Image (optional)</Label>
       <div className="flex items-center gap-4">
         <Input
           id="coverImage"
