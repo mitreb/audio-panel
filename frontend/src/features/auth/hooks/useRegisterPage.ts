@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { AxiosError } from 'axios';
 import { useAuth } from '../hooks/useAuth';
 
 const registerSchema = z.object({
@@ -30,9 +31,13 @@ export const useRegisterPage = () => {
       await registerUser(data);
       navigate('/'); // Redirect to home page after successful registration
     } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : 'Registration failed';
-      setError(message);
+      if (error instanceof AxiosError) {
+        const message =
+          error.response?.data?.error || error.message || 'Registration failed';
+        setError(message);
+      } else {
+        setError('Registration failed');
+      }
     } finally {
       setIsLoading(false);
     }

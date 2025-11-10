@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { AxiosError } from 'axios';
 import { useAuth } from '../hooks/useAuth';
 
 const loginSchema = z.object({
@@ -29,8 +30,14 @@ export const useLoginPage = () => {
       await login(data);
       navigate('/'); // Redirect to home page after successful login
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Login failed';
-      setError(message);
+      console.log(error);
+      if (error instanceof AxiosError) {
+        const message =
+          error.response?.data?.error || error.message || 'Login failed';
+        setError(message);
+      } else {
+        setError('Login failed');
+      }
     } finally {
       setIsLoading(false);
     }
