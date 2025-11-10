@@ -1,5 +1,5 @@
-import api from './api';
-import type { User, LoginCredentials, RegisterData } from '../types/auth';
+import api from '../../../services/api';
+import type { User, LoginCredentials, RegisterData } from '../types/auth.types';
 
 export class AuthService {
   // Register new user

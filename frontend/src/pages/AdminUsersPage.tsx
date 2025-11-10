@@ -29,7 +29,7 @@ import {
   PaginationPrevious,
 } from '../components/ui/pagination';
 import { Trash2, Shield, User as UserIcon } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../features/auth';
 
 const ITEMS_PER_PAGE = 10;
 

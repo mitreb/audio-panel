@@ -3,48 +3,46 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
+import { Button } from '../../../components/ui/button';
+import { Input } from '../../../components/ui/input';
+import { Label } from '../../../components/ui/label';
 import {
   Card,
   CardHeader,
   CardTitle,
   CardContent,
-} from '../components/ui/card';
+} from '../../../components/ui/card';
 import { useAuth } from '../hooks/useAuth';
 
-const registerSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
+const loginSchema = z.object({
   email: z.string().email('Please enter a valid email'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z.string().min(1, 'Password is required'),
 });
 
-type RegisterFormData = z.infer<typeof registerSchema>;
+type LoginFormData = z.infer<typeof loginSchema>;
 
-export function RegisterPage() {
+export function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const { register: registerUser } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<RegisterFormData>({
-    resolver: zodResolver(registerSchema),
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (data: RegisterFormData) => {
+  const onSubmit = async (data: LoginFormData) => {
     try {
       setIsLoading(true);
       setError('');
-      await registerUser(data);
-      navigate('/'); // Redirect to home page after successful registration
+      await login(data);
+      navigate('/'); // Redirect to home page after successful login
     } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : 'Registration failed';
+      const message = error instanceof Error ? error.message : 'Login failed';
       setError(message);
     } finally {
       setIsLoading(false);
@@ -55,7 +53,7 @@ export function RegisterPage() {
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-center">Create Account</CardTitle>
+          <CardTitle className="text-center">Sign In</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -64,21 +62,6 @@ export function RegisterPage() {
                 {error}
               </div>
             )}
-
-            <div>
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                type="text"
-                {...register('name')}
-                className="mt-1"
-              />
-              {errors.name && (
-                <p className="text-sm text-red-600 mt-1">
-                  {errors.name.message}
-                </p>
-              )}
-            </div>
 
             <div>
               <Label htmlFor="email">Email</Label>
@@ -111,17 +94,17 @@ export function RegisterPage() {
             </div>
 
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Creating Account...' : 'Create Account'}
+              {isLoading ? 'Signing In...' : 'Sign In'}
             </Button>
 
             <div className="text-center">
               <span className="text-sm text-gray-600">
-                Already have an account?{' '}
+                Don't have an account?{' '}
                 <Link
-                  to="/login"
+                  to="/register"
                   className="text-primary hover:text-primary/80"
                 >
-                  Sign in
+                  Sign up
                 </Link>
               </span>
             </div>

@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../features/auth';
 import { AdminLayout } from './AdminLayout';
 
 export const AdminRoute = ({ children }: { children: React.ReactNode }) => {

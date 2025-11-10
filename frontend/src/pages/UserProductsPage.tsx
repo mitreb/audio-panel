@@ -31,7 +31,7 @@ import {
 } from '@/components/ui/pagination';
 
 import { ProductService } from '../services/productService';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../features/auth';
 import type { Product } from '../types/product';
 import { ProductImage } from '@/components';
 

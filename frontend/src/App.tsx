@@ -9,12 +9,15 @@ import {
   AdminProductsPage,
   NotFoundPage,
 } from './pages';
-import { LoginPage } from './pages/LoginPage';
-import { RegisterPage } from './pages/RegisterPage';
-import { Navbar, RedirectIfAuthenticated } from './components';
-import { ProtectedRoute } from './components/ProtectedRoute';
+import {
+  LoginPage,
+  RegisterPage,
+  AuthProvider,
+  ProtectedRoute,
+  RedirectIfAuthenticated,
+} from './features/auth';
+import { Navbar } from './components';
 import { AdminRoute } from './components/AdminRoute';
-import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './components/ThemeProvider';
 
 function AppContent() {
