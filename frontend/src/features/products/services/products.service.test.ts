@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ProductService } from './product.service';
+import { ProductService } from './products.service';
 import api from '../../../services/api';
-import type { Product } from '../types/product.types';
+import type { Product } from '../types/products.types';
 
 // Mock the api module
 vi.mock('../../../services/api');

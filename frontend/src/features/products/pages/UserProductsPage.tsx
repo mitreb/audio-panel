@@ -30,9 +30,9 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 
-import { ProductService } from '../services/product.service';
+import { ProductService } from '../services/products.service';
 import { useAuth } from '../../auth';
-import type { Product } from '../types/product.types';
+import type { Product } from '../types/products.types';
 import { ProductImage } from '../components/ProductImage';
 
 const ITEMS_PER_PAGE = 10;

@@ -3,7 +3,7 @@ import type {
   Product,
   CreateProductData,
   UpdateProductData,
-} from '../types/product.types';
+} from '../types/products.types';
 
 export interface PaginatedResponse<T> {
   data: T[];

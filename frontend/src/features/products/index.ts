@@ -7,8 +7,8 @@ export { UpdateProductPage } from './pages/UpdateProductPage';
 export { UserProductsPage } from './pages/UserProductsPage';
 
 // Services
-export { ProductService } from './services/product.service';
-export type { PaginatedResponse } from './services/product.service';
+export { ProductService } from './services/products.service';
+export type { PaginatedResponse } from './services/products.service';
 
 // Types
 export type {
@@ -17,4 +17,4 @@ export type {
   UpdateProductData,
   ApiError,
   ApiResponse,
-} from './types/product.types';
+} from './types/products.types';
