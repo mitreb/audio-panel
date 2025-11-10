@@ -83,7 +83,7 @@ export const LandingPage = () => {
             >
               Tymofii O.
             </a>{' '}
-            with React, TypeScript, and shadcn/ui
+            — Built with React, TypeScript, and shadcn/ui
           </p>
         </div>
       </footer>
