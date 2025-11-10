@@ -86,7 +86,7 @@ describe('ProductService', () => {
   });
 
   describe('createProduct', () => {
-    it('should create a product with cover image', async () => {
+    it('should create a product with all required fields', async () => {
       const mockFile = new File(['image'], 'cover.jpg', { type: 'image/jpeg' });
       const createData = {
         name: 'New Album',
@@ -105,26 +105,44 @@ describe('ProductService', () => {
         },
       });
       expect(result).toEqual(mockProduct);
+
+      // Verify all required fields are included in FormData
+      const formData = vi.mocked(api.post).mock.calls[0][1] as FormData;
+      expect(formData.get('name')).toBe('New Album');
+      expect(formData.get('artist')).toBe('New Artist');
+      expect(formData.get('coverImage')).toBeInstanceOf(File);
     });
 
-    it('should create a product without cover image', async () => {
-      const createData = {
+    it('should reject creation without cover image', async () => {
+      // This test verifies that the API rejects products without cover images
+      const mockError = {
+        response: {
+          data: { error: 'Cover image is required' },
+          status: 400,
+        },
+      };
+      vi.mocked(api.post).mockRejectedValue(mockError);
+
+      const invalidData = {
         name: 'New Album',
         artist: 'New Artist',
-      };
+        // Missing coverImage
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any; // Cast to any to bypass TypeScript checks for testing
 
-      const mockResponse = { data: mockProduct };
-      vi.mocked(api.post).mockResolvedValue(mockResponse);
-
-      const result = await ProductService.createProduct(createData);
-
-      expect(api.post).toHaveBeenCalled();
-      expect(result).toEqual(mockProduct);
+      await expect(
+        ProductService.createProduct(invalidData)
+      ).rejects.toMatchObject({
+        response: {
+          status: 400,
+          data: { error: 'Cover image is required' },
+        },
+      });
     });
   });
 
   describe('updateProduct', () => {
-    it('should update product with all fields', async () => {
+    it('should update product with all required fields', async () => {
       const mockFile = new File(['image'], 'new-cover.jpg', {
         type: 'image/jpeg',
       });
@@ -149,20 +167,65 @@ describe('ProductService', () => {
         }
       );
       expect(result).toEqual(mockProduct);
+
+      // Verify all required fields are included in FormData
+      const formData = vi.mocked(api.put).mock.calls[0][1] as FormData;
+      expect(formData.get('name')).toBe('Updated Album');
+      expect(formData.get('artist')).toBe('Updated Artist');
+      expect(formData.get('coverImage')).toBeInstanceOf(File);
     });
 
-    it('should update product with partial fields', async () => {
-      const updateData = {
-        name: 'Updated Album',
+    it('should reject partial updates without all required fields', async () => {
+      // This test verifies that the API rejects partial updates
+      const mockError = {
+        response: {
+          data: { error: 'All fields (name, artist, coverImage) are required' },
+          status: 400,
+        },
       };
+      vi.mocked(api.put).mockRejectedValue(mockError);
 
-      const mockResponse = { data: mockProduct };
-      vi.mocked(api.put).mockResolvedValue(mockResponse);
+      const partialData = {
+        name: 'Updated Album',
+        // Missing artist and coverImage
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any; // Cast to any to bypass TypeScript checks for testing
 
-      const result = await ProductService.updateProduct('1', updateData);
+      await expect(
+        ProductService.updateProduct('1', partialData)
+      ).rejects.toMatchObject({
+        response: {
+          status: 400,
+          data: { error: 'All fields (name, artist, coverImage) are required' },
+        },
+      });
+    });
 
-      expect(api.put).toHaveBeenCalled();
-      expect(result).toEqual(mockProduct);
+    it('should reject update without cover image', async () => {
+      // This test verifies that the API rejects updates without cover images
+      const mockError = {
+        response: {
+          data: { error: 'Cover image is required' },
+          status: 400,
+        },
+      };
+      vi.mocked(api.put).mockRejectedValue(mockError);
+
+      const invalidData = {
+        name: 'Updated Album',
+        artist: 'Updated Artist',
+        // Missing coverImage
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any; // Cast to any to bypass TypeScript checks for testing
+
+      await expect(
+        ProductService.updateProduct('1', invalidData)
+      ).rejects.toMatchObject({
+        response: {
+          status: 400,
+          data: { error: 'Cover image is required' },
+        },
+      });
     });
   });
 

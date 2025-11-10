@@ -11,13 +11,13 @@ export interface Product {
 export interface CreateProductData {
   name: string;
   artist: string;
-  coverImage?: File;
+  coverImage: File;
 }
 
 export interface UpdateProductData {
-  name?: string;
-  artist?: string;
-  coverImage?: File;
+  name: string;
+  artist: string;
+  coverImage: File;
 }
 
 export interface ApiError {
