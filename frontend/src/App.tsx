@@ -1,9 +1,6 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router';
 import {
   LandingPage,
-  CreateProductPage,
-  UpdateProductPage,
-  UserProductsPage,
   AdminDashboardPage,
   AdminUsersPage,
   AdminProductsPage,
@@ -16,6 +13,11 @@ import {
   ProtectedRoute,
   RedirectIfAuthenticated,
 } from './features/auth';
+import {
+  CreateProductPage,
+  UpdateProductPage,
+  UserProductsPage,
+} from './features/products';
 import { Navbar } from './components';
 import { AdminRoute } from './components/AdminRoute';
 import { ThemeProvider } from './components/ThemeProvider';

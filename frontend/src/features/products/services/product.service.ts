@@ -1,9 +1,9 @@
-import api from './api';
+import api from '../../../services/api';
 import type {
   Product,
   CreateProductData,
   UpdateProductData,
-} from '../types/product';
+} from '../types/product.types';
 
 export interface PaginatedResponse<T> {
   data: T[];

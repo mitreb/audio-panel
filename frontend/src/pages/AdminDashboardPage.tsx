@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from '../components/ui/card';
 import { Users, Package } from 'lucide-react';
-import { ProductImage } from '@/components';
+import { ProductImage } from '../features/products';
 
 export const AdminDashboardPage = () => {
   const [stats, setStats] = useState<AdminStats | null>(null);

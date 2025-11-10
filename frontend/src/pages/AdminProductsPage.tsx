@@ -28,7 +28,7 @@ import {
   PaginationPrevious,
 } from '../components/ui/pagination';
 import { Trash2 } from 'lucide-react';
-import { ProductImage } from '@/components';
+import { ProductImage } from '../features/products';
 
 const ITEMS_PER_PAGE = 10;
 

@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate, useParams, Navigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { ProductService } from '../services/productService';
-import type { UpdateProductData, Product } from '../types/product';
+import { ProductService } from '../services/product.service';
+import type { CreateProductData } from '../types/product.types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,7 +24,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Upload, ArrowLeft, Loader2 } from 'lucide-react';
+import { Upload, ArrowLeft } from 'lucide-react';
 
 const formSchema = z.object({
   name: z
@@ -40,13 +40,10 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-export const UpdateProductPage = () => {
+export const CreateProductPage = () => {
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
   const [loading, setLoading] = useState(false);
-  const [loadingProduct, setLoadingProduct] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [product, setProduct] = useState<Product | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
@@ -57,35 +54,6 @@ export const UpdateProductPage = () => {
       artist: '',
     },
   });
-
-  // Load product data on mount
-  useEffect(() => {
-    const loadProduct = async () => {
-      if (!id) {
-        setError('Product ID is required');
-        setLoadingProduct(false);
-        return;
-      }
-
-      try {
-        setLoadingProduct(true);
-        const productData = await ProductService.getProduct(id);
-        setProduct(productData);
-
-        // Pre-populate form with existing data
-        form.reset({
-          name: productData.name,
-          artist: productData.artist,
-        });
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load product');
-      } finally {
-        setLoadingProduct(false);
-      }
-    };
-
-    loadProduct();
-  }, [id, form]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -107,25 +75,20 @@ export const UpdateProductPage = () => {
   };
 
   const onSubmit = async (data: FormData) => {
-    if (!id) {
-      setError('Product ID is required');
-      return;
-    }
-
     try {
       setLoading(true);
       setError(null);
 
-      const updateData: UpdateProductData = {
+      const productData: CreateProductData = {
         name: data.name,
         artist: data.artist,
         coverImage: selectedFile || undefined,
       };
 
-      await ProductService.updateProduct(id, updateData);
+      await ProductService.createProduct(productData);
       navigate('/'); // Navigate back to product list
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update product');
+      setError(err instanceof Error ? err.message : 'Failed to create product');
     } finally {
       setLoading(false);
     }
@@ -139,21 +102,6 @@ export const UpdateProductPage = () => {
       }
     };
   }, [previewUrl]);
-
-  if (loadingProduct) {
-    return (
-      <div className="container mx-auto max-w-2xl px-4 py-8">
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin" />
-          <span className="ml-2">Loading product...</span>
-        </div>
-      </div>
-    );
-  }
-
-  if (!product) {
-    return <Navigate to="/404" replace />;
-  }
 
   return (
     <div className="container mx-auto max-w-2xl px-4 py-8">
@@ -169,9 +117,10 @@ export const UpdateProductPage = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Update Product</CardTitle>
+          <CardTitle className="text-2xl">Create New Product</CardTitle>
           <CardDescription>
-            Update the details of "{product.name}" by {product.artist}.
+            Add a new music product to your collection. Fill in the details
+            below.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -215,24 +164,7 @@ export const UpdateProductPage = () => {
               />
 
               <div className="space-y-4">
-                <Label htmlFor="coverImage">Cover Image</Label>
-
-                {/* Show current image if it exists */}
-                {product.coverImage && !selectedFile && (
-                  <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">
-                      Current image:
-                    </p>
-                    <div className="relative">
-                      <img
-                        src={product.coverImage}
-                        alt={`${product.name} cover`}
-                        className="w-32 h-32 object-cover rounded-md border border-border"
-                      />
-                    </div>
-                  </div>
-                )}
-
+                <Label htmlFor="coverImage">Cover Image (optional)</Label>
                 <div className="flex items-center gap-4">
                   <Input
                     id="coverImage"
@@ -247,7 +179,7 @@ export const UpdateProductPage = () => {
                 {selectedFile && (
                   <div className="space-y-3">
                     <p className="text-sm text-muted-foreground">
-                      New image: {selectedFile.name} (
+                      Selected: {selectedFile.name} (
                       {(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
                     </p>
                     {previewUrl && (
@@ -261,12 +193,6 @@ export const UpdateProductPage = () => {
                     )}
                   </div>
                 )}
-
-                {!product.coverImage && !selectedFile && (
-                  <p className="text-sm text-muted-foreground">
-                    No image currently set. Upload one to add a cover image.
-                  </p>
-                )}
               </div>
 
               <div className="flex gap-4 pt-4">
@@ -279,7 +205,7 @@ export const UpdateProductPage = () => {
                   <Link to="/dashboard">Cancel</Link>
                 </Button>
                 <Button type="submit" disabled={loading} className="flex-1">
-                  {loading ? 'Updating...' : 'Update Product'}
+                  {loading ? 'Creating...' : 'Create Product'}
                 </Button>
               </div>
             </form>

@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ProductService } from './productService';
-import api from './api';
-import type { Product } from '../types/product';
+import { ProductService } from './product.service';
+import api from '../../../services/api';
+import type { Product } from '../types/product.types';
 
 // Mock the api module
-vi.mock('./api');
+vi.mock('../../../services/api');
 
 describe('ProductService', () => {
   const mockProduct: Product = {
