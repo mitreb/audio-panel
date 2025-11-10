@@ -3,8 +3,8 @@ import { Link, useNavigate, useParams, Navigate } from 'react-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { ProductService } from '../services/products.service';
-import type { UpdateProductData, Product } from '../types/products.types';
+import { useProduct, useUpdateProduct } from '../hooks';
+import type { UpdateProductData } from '../types/products.types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -43,12 +43,11 @@ type FormData = z.infer<typeof formSchema>;
 export const UpdateProductPage = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const [loading, setLoading] = useState(false);
-  const [loadingProduct, setLoadingProduct] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [product, setProduct] = useState<Product | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const { data: product, isLoading, error: queryError } = useProduct(id);
+  const updateProductMutation = useUpdateProduct();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -58,34 +57,15 @@ export const UpdateProductPage = () => {
     },
   });
 
-  // Load product data on mount
+  // Load product data into form when it's available
   useEffect(() => {
-    const loadProduct = async () => {
-      if (!id) {
-        setError('Product ID is required');
-        setLoadingProduct(false);
-        return;
-      }
-
-      try {
-        setLoadingProduct(true);
-        const productData = await ProductService.getProduct(id);
-        setProduct(productData);
-
-        // Pre-populate form with existing data
-        form.reset({
-          name: productData.name,
-          artist: productData.artist,
-        });
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load product');
-      } finally {
-        setLoadingProduct(false);
-      }
-    };
-
-    loadProduct();
-  }, [id, form]);
+    if (product) {
+      form.reset({
+        name: product.name,
+        artist: product.artist,
+      });
+    }
+  }, [product, form]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -108,33 +88,26 @@ export const UpdateProductPage = () => {
 
   const onSubmit = async (data: FormData) => {
     if (!id) {
-      setError('Product ID is required');
       return;
     }
 
+    // Validate that cover image is selected
+    if (!selectedFile) {
+      return;
+    }
+
+    const updateData: UpdateProductData = {
+      name: data.name,
+      artist: data.artist,
+      coverImage: selectedFile,
+    };
+
     try {
-      setLoading(true);
-      setError(null);
-
-      // Validate that cover image is selected
-      if (!selectedFile) {
-        setError('Cover image is required');
-        setLoading(false);
-        return;
-      }
-
-      const updateData: UpdateProductData = {
-        name: data.name,
-        artist: data.artist,
-        coverImage: selectedFile,
-      };
-
-      await ProductService.updateProduct(id, updateData);
+      await updateProductMutation.mutateAsync({ id, data: updateData });
       navigate('/'); // Navigate back to product list
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update product');
-    } finally {
-      setLoading(false);
+      // Error is handled by React Query
+      console.error('Failed to update product:', err);
     }
   };
 
@@ -147,7 +120,7 @@ export const UpdateProductPage = () => {
     };
   }, [previewUrl]);
 
-  if (loadingProduct) {
+  if (isLoading) {
     return (
       <div className="container mx-auto max-w-2xl px-4 py-8">
         <div className="flex items-center justify-center h-64">
@@ -158,7 +131,7 @@ export const UpdateProductPage = () => {
     );
   }
 
-  if (!product) {
+  if (queryError || !product) {
     return <Navigate to="/404" replace />;
   }
 
@@ -182,9 +155,11 @@ export const UpdateProductPage = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {error && (
+          {updateProductMutation.error && (
             <Alert variant="destructive" className="mb-6">
-              <AlertDescription>{error}</AlertDescription>
+              <AlertDescription>
+                {updateProductMutation.error.message}
+              </AlertDescription>
             </Alert>
           )}
 
@@ -285,8 +260,14 @@ export const UpdateProductPage = () => {
                 >
                   <Link to="/dashboard">Cancel</Link>
                 </Button>
-                <Button type="submit" disabled={loading} className="flex-1">
-                  {loading ? 'Updating...' : 'Update Product'}
+                <Button
+                  type="submit"
+                  disabled={updateProductMutation.isPending}
+                  className="flex-1"
+                >
+                  {updateProductMutation.isPending
+                    ? 'Updating...'
+                    : 'Update Product'}
                 </Button>
               </div>
             </form>

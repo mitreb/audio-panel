@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router';
 import { Edit, Trash2, Plus, AlertCircle } from 'lucide-react';
 
@@ -30,23 +30,19 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 
-import { ProductService } from '../services/products.service';
-import { useAuth } from '../../auth';
+import { useProducts, useDeleteProduct } from '../hooks';
 import type { Product } from '../types/products.types';
 import { ProductImage } from '../components/ProductImage';
 
 const ITEMS_PER_PAGE = 10;
 
 export const UserProductsPage = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
-  const { user } = useAuth();
+  const { data, isLoading, error } = useProducts(currentPage, ITEMS_PER_PAGE);
+  const deleteProductMutation = useDeleteProduct();
 
   const handleDeleteClick = (product: Product) => {
     setProductToDelete(product);
@@ -57,17 +53,11 @@ export const UserProductsPage = () => {
     if (!productToDelete) return;
 
     try {
-      await ProductService.deleteProduct(productToDelete.id);
-      setProducts((prevProducts) =>
-        prevProducts.filter((p) => p.id !== productToDelete.id)
-      );
+      await deleteProductMutation.mutateAsync(productToDelete.id);
       setDeleteDialogOpen(false);
       setProductToDelete(null);
-      // Reload current page
-      fetchUserProducts(currentPage);
     } catch (error) {
       console.error('Failed to delete product:', error);
-      setError('Failed to delete product');
     }
   };
 
@@ -76,32 +66,12 @@ export const UserProductsPage = () => {
     setProductToDelete(null);
   };
 
-  // Fetch user's products
-  const fetchUserProducts = async (page: number) => {
-    if (!user) return;
-
-    try {
-      setLoading(true);
-      setError(null);
-      // Get user's products with server-side pagination
-      const response = await ProductService.getProducts(page, ITEMS_PER_PAGE);
-      setProducts(response.data);
-      setTotalPages(response.pagination.totalPages);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Failed to fetch your products'
-      );
-    } finally {
-      setLoading(false);
-    }
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  useEffect(() => {
-    fetchUserProducts(currentPage);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, currentPage]);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex-1 space-y-4 pt-6">
         <div className="max-w-7xl mx-auto px-6">
@@ -122,10 +92,8 @@ export const UserProductsPage = () => {
     );
   }
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const products = data?.data || [];
+  const totalPages = data?.pagination.totalPages || 1;
 
   return (
     <div className="flex-1 space-y-4 pt-6">
@@ -151,7 +119,7 @@ export const UserProductsPage = () => {
         {error && (
           <Alert variant="destructive" className="my-6">
             <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
+            <AlertDescription>{error.message}</AlertDescription>
           </Alert>
         )}
 

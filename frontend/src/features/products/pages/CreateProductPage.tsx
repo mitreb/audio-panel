@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { ProductService } from '../services/products.service';
+import { useCreateProduct } from '../hooks';
 import type { CreateProductData } from '../types/products.types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,10 +42,10 @@ type FormData = z.infer<typeof formSchema>;
 
 export const CreateProductPage = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const createProductMutation = useCreateProduct();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -75,29 +75,23 @@ export const CreateProductPage = () => {
   };
 
   const onSubmit = async (data: FormData) => {
+    // Validate that cover image is selected
+    if (!selectedFile) {
+      return;
+    }
+
+    const productData: CreateProductData = {
+      name: data.name,
+      artist: data.artist,
+      coverImage: selectedFile,
+    };
+
     try {
-      setLoading(true);
-      setError(null);
-
-      // Validate that cover image is selected
-      if (!selectedFile) {
-        setError('Cover image is required');
-        setLoading(false);
-        return;
-      }
-
-      const productData: CreateProductData = {
-        name: data.name,
-        artist: data.artist,
-        coverImage: selectedFile,
-      };
-
-      await ProductService.createProduct(productData);
+      await createProductMutation.mutateAsync(productData);
       navigate('/'); // Navigate back to product list
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create product');
-    } finally {
-      setLoading(false);
+      // Error is handled by React Query
+      console.error('Failed to create product:', err);
     }
   };
 
@@ -131,9 +125,11 @@ export const CreateProductPage = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {error && (
+          {createProductMutation.error && (
             <Alert variant="destructive" className="mb-6">
-              <AlertDescription>{error}</AlertDescription>
+              <AlertDescription>
+                {createProductMutation.error.message}
+              </AlertDescription>
             </Alert>
           )}
 
@@ -211,8 +207,14 @@ export const CreateProductPage = () => {
                 >
                   <Link to="/dashboard">Cancel</Link>
                 </Button>
-                <Button type="submit" disabled={loading} className="flex-1">
-                  {loading ? 'Creating...' : 'Create Product'}
+                <Button
+                  type="submit"
+                  disabled={createProductMutation.isPending}
+                  className="flex-1"
+                >
+                  {createProductMutation.isPending
+                    ? 'Creating...'
+                    : 'Create Product'}
                 </Button>
               </div>
             </form>
