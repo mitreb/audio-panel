@@ -86,7 +86,7 @@ export async function getImageUrl(
     const result = await uploadToGCS(file);
     return result.publicUrl;
   } else {
-    return `/uploads/${file.filename}`;
+    return `/${config.uploadsDir}/${file.filename}`;
   }
 }
 
@@ -99,5 +99,5 @@ export function extractFilename(url: string | null): string | null {
     const parts = url.split('/');
     return parts[parts.length - 1];
   }
-  return url.replace('/uploads/', '');
+  return url.replace(`/${config.uploadsDir}/`, '');
 }

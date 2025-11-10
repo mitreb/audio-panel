@@ -53,4 +53,5 @@ export const config = {
   cookieSameSite: (env.NODE_ENV === 'production' ? 'none' : 'lax') as
     | 'none'
     | 'lax',
+  uploadsDir: env.NODE_ENV === 'test' ? 'uploads-test' : 'uploads',
 } as const;

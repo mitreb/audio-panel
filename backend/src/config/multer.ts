@@ -9,7 +9,7 @@ export const storage = config.USE_CLOUD_STORAGE
   ? multer.memoryStorage()
   : multer.diskStorage({
       destination: (req: Request, file: Express.Multer.File, cb) => {
-        cb(null, 'uploads/');
+        cb(null, `${config.uploadsDir}/`);
       },
       filename: (req: Request, file: Express.Multer.File, cb) => {
         // Generate unique filename: timestamp-originalname

@@ -3,6 +3,7 @@ import app from '../../../app';
 import { PrismaClient } from '@prisma/client';
 import path from 'path';
 import fs from 'fs';
+import { config } from '../../../config/env';
 
 jest.mock('uuid');
 
@@ -38,11 +39,17 @@ describe('Products API', () => {
       where: { email: testUser.email },
     });
     await prisma.$disconnect();
+
+    // Clean up test uploads directory
+    const uploadsDir = path.join(process.cwd(), config.uploadsDir);
+    if (fs.existsSync(uploadsDir)) {
+      fs.rmSync(uploadsDir, { recursive: true, force: true });
+    }
   });
 
   beforeEach(() => {
     // Ensure uploads directory exists
-    const uploadsDir = path.join(process.cwd(), 'uploads');
+    const uploadsDir = path.join(process.cwd(), config.uploadsDir);
     if (!fs.existsSync(uploadsDir)) {
       fs.mkdirSync(uploadsDir, { recursive: true });
     }
@@ -185,7 +192,7 @@ describe('Products API', () => {
         .expect(200);
 
       expect(response.body.coverImage).toBeTruthy();
-      expect(response.body.coverImage).toContain('/uploads/');
+      expect(response.body.coverImage).toContain(`/${config.uploadsDir}/`);
     });
 
     it('should return 400 when no fields provided', async () => {
@@ -209,8 +216,8 @@ describe('Products API', () => {
       const oldCoverImage = createResponse.body.coverImage;
 
       // Verify old file exists
-      const uploadsDir = path.join(process.cwd(), 'uploads');
-      const oldFileName = oldCoverImage.replace('/uploads/', '');
+      const uploadsDir = path.join(process.cwd(), config.uploadsDir);
+      const oldFileName = oldCoverImage.replace(`/${config.uploadsDir}/`, '');
       const oldImagePath = path.join(uploadsDir, oldFileName);
       expect(fs.existsSync(oldImagePath)).toBe(true);
 
@@ -229,7 +236,7 @@ describe('Products API', () => {
       expect(fs.existsSync(oldImagePath)).toBe(false);
 
       // Verify new image exists
-      const newFileName = newCoverImage.replace('/uploads/', '');
+      const newFileName = newCoverImage.replace(`/${config.uploadsDir}/`, '');
       const newImagePath = path.join(uploadsDir, newFileName);
       expect(fs.existsSync(newImagePath)).toBe(true);
     });
@@ -278,8 +285,8 @@ describe('Products API', () => {
       const coverImage = createResponse.body.coverImage;
 
       // Verify image exists
-      const uploadsDir = path.join(process.cwd(), 'uploads');
-      const fileName = coverImage.replace('/uploads/', '');
+      const uploadsDir = path.join(process.cwd(), config.uploadsDir);
+      const fileName = coverImage.replace(`/${config.uploadsDir}/`, '');
       const imagePath = path.join(uploadsDir, fileName);
       expect(fs.existsSync(imagePath)).toBe(true);
 
