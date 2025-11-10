@@ -27,7 +27,8 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '../components/ui/pagination';
-import { Trash2, Package } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
+import { ProductImage } from '@/components';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -126,17 +127,12 @@ export const AdminProductsPage = () => {
             {products.map((product) => (
               <TableRow key={product.id}>
                 <TableCell>
-                  {product.coverImage ? (
-                    <img
-                      src={`http://localhost:3000${product.coverImage}`}
-                      alt={product.name}
-                      className="w-12 h-12 object-cover rounded"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
-                      <Package className="h-6 w-6 text-gray-400" />
-                    </div>
-                  )}
+                  <ProductImage
+                    src={product.coverImage}
+                    alt={product.name}
+                    wrapperClassName="w-12 h-12"
+                    className="w-full h-full"
+                  />
                 </TableCell>
                 <TableCell className="font-medium">{product.name}</TableCell>
                 <TableCell>{product.artist}</TableCell>

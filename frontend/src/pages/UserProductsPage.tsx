@@ -33,6 +33,7 @@ import {
 import { ProductService } from '../services/productService';
 import { useAuth } from '../hooks/useAuth';
 import type { Product } from '../types/product';
+import { ProductImage } from '@/components';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -170,13 +171,12 @@ export const UserProductsPage = () => {
                 products.map((product) => (
                   <TableRow key={product.id}>
                     <TableCell>
-                      <div className="w-12 h-12 rounded-md overflow-hidden bg-gray-100">
-                        <img
-                          src={product.coverImage || '/placeholder-image.jpg'}
-                          alt={product.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
+                      <ProductImage
+                        src={product.coverImage}
+                        alt={product.name}
+                        wrapperClassName="w-12 h-12"
+                        className="w-full h-full"
+                      />
                     </TableCell>
                     <TableCell className="font-medium">
                       {product.name}
