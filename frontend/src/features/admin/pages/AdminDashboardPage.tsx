@@ -1,12 +1,6 @@
 import { useAdminStats } from '../hooks';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '../../../components/ui/card';
 import { Users, Package } from 'lucide-react';
-import { ProductImage } from '../../products';
+import { StatsCard, RecentProducts } from '../components/dashboard';
 
 export const AdminDashboardPage = () => {
   const { data: stats, isLoading, error } = useAdminStats();
@@ -29,74 +23,22 @@ export const AdminDashboardPage = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-4xl font-bold">{stats?.totalUsers}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Registered users in the system
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Products
-            </CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-4xl font-bold">{stats?.totalProducts}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Music products in the catalog
-            </p>
-          </CardContent>
-        </Card>
+        <StatsCard
+          title="Total Users"
+          value={stats?.totalUsers}
+          description="Registered users in the system"
+          icon={Users}
+        />
+        <StatsCard
+          title="Total Products"
+          value={stats?.totalProducts}
+          description="Music products in the catalog"
+          icon={Package}
+        />
       </div>
 
       {/* Recent Products */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Products</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {stats?.recentProducts && stats.recentProducts.length > 0 ? (
-            <div className="space-y-4">
-              {stats.recentProducts.map((product) => (
-                <div
-                  key={product.id}
-                  className="flex items-center justify-between border-b pb-3 last:border-b-0 last:pb-0"
-                >
-                  <div className="flex items-center gap-4">
-                    <ProductImage
-                      src={product.coverImage}
-                      alt={product.name}
-                      wrapperClassName="w-12 h-12"
-                      className="w-full h-full"
-                    />
-                    <div>
-                      <p className="font-semibold">{product.name}</p>
-                      <p className="text-sm text-gray-600">{product.artist}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium">{product.user.name}</p>
-                    <p className="text-xs text-gray-500">
-                      {product.user.email}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500 text-center py-4">No products yet</p>
-          )}
-        </CardContent>
-      </Card>
+      <RecentProducts products={stats?.recentProducts} />
     </div>
   );
 };
