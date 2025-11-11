@@ -1,10 +1,10 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AlertCircle, Plus } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { PageLoader } from '@/components/page-loader';
 import { ViewSwitcher } from '@/components/ViewSwitcher';
+import { useViewPreference } from '@/hooks/useViewPreference';
 import { useUserProductsPage } from '../hooks';
 import {
   ProductsTable,
@@ -14,7 +14,7 @@ import {
 } from '../components';
 
 export function UserProductsPage() {
-  const [view, setView] = useState<'table' | 'grid'>('grid');
+  const [view, setView] = useViewPreference('products-view-preference');
   const {
     products,
     totalPages,

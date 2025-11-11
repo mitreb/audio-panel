@@ -1,6 +1,6 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus } from 'lucide-react';
+import { useViewPreference } from '@/hooks/useViewPreference';
 import { useAdminProductsPage } from '../hooks';
 import {
   ProductsTable,
@@ -13,7 +13,7 @@ import { ViewSwitcher } from '@/components/ViewSwitcher';
 import { Button } from '@/components/ui/button';
 
 export function AdminProductsPage() {
-  const [view, setView] = useState<'table' | 'grid'>('grid');
+  const [view, setView] = useViewPreference('admin-products-view-preference');
   const {
     products,
     totalPages,
