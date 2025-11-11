@@ -1,12 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import multer from 'multer';
-import {
-  AppError,
-  ValidationError,
-  InvalidFileTypeError,
-  FileTooLargeError,
-} from '../errors/custom-errors';
+import { AppError, ValidationError } from '../errors/custom-errors';
 
 export const errorHandler = (
   err: any,
