@@ -2,7 +2,7 @@
 
 A full-stack product management system designed for music-centric environments, allowing users to manage audio products including albums, singles, and music releases with cover art.
 
-**Live Demo:** [https://audiopanel.online/](https://audiopanel.online/)
+**Live Demo:** <a href="https://audiopanel.online/" target="_blank">https://audiopanel.online/</a>
 
 ## 📋 Table of Contents
 
@@ -767,6 +767,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ---
 
-**Live Demo:** [https://audiopanel.online/](https://audiopanel.online/)
+**Live Demo:** <a href="https://audiopanel.online/" target="_blank">https://audiopanel.online/</a>
 
 For questions or support, please open an issue on GitHub.
