@@ -1,8 +1,22 @@
 import { Link, useLocation } from 'react-router';
 import { Button } from '@/components/ui/button';
-import { Music, LogOut, User, ShieldCheck } from 'lucide-react';
+import {
+  Music,
+  LogOut,
+  User,
+  ShieldCheck,
+  LayoutDashboard,
+} from 'lucide-react';
 import { useAuth } from '../features/auth';
 import { ModeToggle } from '../features/theme';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export function Navbar() {
   const { user, logout } = useAuth();
@@ -44,81 +58,50 @@ export function Navbar() {
         <div className="flex items-center gap-2 sm:gap-4">
           {user ? (
             <>
-              {/* Admin link for admin users */}
-              {user.role === 'ADMIN' && (
-                <>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    asChild
-                    className="hidden sm:flex"
-                  >
-                    <Link to="/admin">
-                      <ShieldCheck className="mr-2 h-4 w-4" />
-                      Admin
-                    </Link>
-                  </Button>
-                  {/* Mobile admin button - icon only */}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    asChild
-                    className="sm:hidden"
-                  >
-                    <Link to="/admin">
-                      <ShieldCheck className="h-4 w-4" />
-                    </Link>
-                  </Button>
-                  <div className="h-6 w-px bg-border hidden sm:block" />
-                </>
-              )}
-
-              {/* User info and logout */}
-              <div className="flex items-center gap-2">
-                {/* Desktop user button */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  asChild
-                  className="hidden sm:flex"
-                >
-                  <Link to="/dashboard" className="flex items-center space-x-2">
+              {/* User dropdown menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-2">
                     <User className="h-4 w-4" />
-                    <span>{user.name}</span>
-                  </Link>
-                </Button>
-                {/* Mobile user button - icon only */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  asChild
-                  className="sm:hidden"
-                >
-                  <Link to="/dashboard">
-                    <User className="h-4 w-4" />
-                  </Link>
-                </Button>
-
-                {/* Desktop logout button */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleLogout}
-                  className="hidden sm:flex"
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Logout
-                </Button>
-                {/* Mobile logout button - icon only */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleLogout}
-                  className="sm:hidden"
-                >
-                  <LogOut className="h-4 w-4" />
-                </Button>
-              </div>
+                    <span className="hidden sm:inline">{user.name}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">
+                        {user.name}
+                      </p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {user.email}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/dashboard" className="cursor-pointer">
+                      <LayoutDashboard className="mr-2 h-4 w-4" />
+                      Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                  {user.role === 'ADMIN' && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin" className="cursor-pointer">
+                        <ShieldCheck className="mr-2 h-4 w-4" />
+                        Admin Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="cursor-pointer"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </>
           ) : (
             <>
