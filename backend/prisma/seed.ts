@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { seedUsers } from './seeders/users';
+import { seedProducts } from './seeders/products';
 
 const prisma = new PrismaClient();
 
@@ -8,7 +9,7 @@ async function main() {
 
   try {
     await seedUsers();
-    // await seedProducts(); // Will add this after creating products seeder
+    await seedProducts();
 
     console.log('🎉 Database seeding completed successfully!');
   } catch (error) {
