@@ -153,11 +153,11 @@ describe('ProductService', () => {
       };
 
       const mockResponse = { data: mockProduct };
-      vi.mocked(api.put).mockResolvedValue(mockResponse);
+      vi.mocked(api.patch).mockResolvedValue(mockResponse);
 
       const result = await ProductService.updateProduct('1', updateData);
 
-      expect(api.put).toHaveBeenCalledWith(
+      expect(api.patch).toHaveBeenCalledWith(
         '/products/1',
         expect.any(FormData),
         {
@@ -169,7 +169,7 @@ describe('ProductService', () => {
       expect(result).toEqual(mockProduct);
 
       // Verify all required fields are included in FormData
-      const formData = vi.mocked(api.put).mock.calls[0][1] as FormData;
+      const formData = vi.mocked(api.patch).mock.calls[0][1] as FormData;
       expect(formData.get('name')).toBe('Updated Album');
       expect(formData.get('artist')).toBe('Updated Artist');
       expect(formData.get('coverImage')).toBeInstanceOf(File);
@@ -183,7 +183,7 @@ describe('ProductService', () => {
           status: 400,
         },
       };
-      vi.mocked(api.put).mockRejectedValue(mockError);
+      vi.mocked(api.patch).mockRejectedValue(mockError);
 
       const partialData = {
         name: 'Updated Album',
@@ -209,7 +209,7 @@ describe('ProductService', () => {
           status: 400,
         },
       };
-      vi.mocked(api.put).mockRejectedValue(mockError);
+      vi.mocked(api.patch).mockRejectedValue(mockError);
 
       const invalidData = {
         name: 'Updated Album',
