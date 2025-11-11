@@ -311,9 +311,9 @@ audio-panel/
 
 ### Base URL
 
-```
-http://localhost:3000/api
-```
+**Production:** `https://audiopanel.online/api`
+
+**Development:** `http://localhost:3000/api`
 
 ### Authentication
 
@@ -383,7 +383,7 @@ POST /api/auth/logout
 
 ```json
 {
-  "message": "Logged out successfully"
+  "message": "Logout successful"
 }
 ```
 
@@ -397,10 +397,12 @@ GET /api/auth/user
 
 ```json
 {
-  "id": "clx...",
-  "email": "user@example.com",
-  "name": "John Doe",
-  "role": "USER"
+  "user": {
+    "id": "clx...",
+    "email": "user@example.com",
+    "name": "John Doe",
+    "role": "USER"
+  }
 }
 ```
 
@@ -408,17 +410,22 @@ GET /api/auth/user
 
 #### Get All Products
 
-Returns all products for the authenticated user.
+Returns all products for the authenticated user with pagination.
 
 ```http
-GET /api/products
+GET /api/products?page=1&limit=10
 ```
+
+**Query Parameters:**
+
+- `page` (optional): Page number, default `1`
+- `limit` (optional): Items per page, default `10`
 
 **Response (200):**
 
 ```json
 {
-  "products": [
+  "data": [
     {
       "id": "clx...",
       "name": "Thriller",
@@ -428,7 +435,14 @@ GET /api/products
       "updatedAt": "2025-01-01T00:00:00.000Z",
       "userId": "clx..."
     }
-  ]
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 50,
+    "totalPages": 5,
+    "hasMore": true
+  }
 }
 ```
 
@@ -514,13 +528,9 @@ coverImage: [file] (optional)
 DELETE /api/products/:id
 ```
 
-**Response (200):**
+**Response (204):**
 
-```json
-{
-  "message": "Product deleted successfully"
-}
-```
+No content returned.
 
 ### Admin Endpoints
 
@@ -538,23 +548,40 @@ GET /api/admin/stats
 {
   "totalUsers": 150,
   "totalProducts": 1250,
-  "totalAdmins": 5,
-  "recentUsers": 12,
-  "recentProducts": 45
+  "recentProducts": [
+    {
+      "id": "clx...",
+      "name": "Thriller",
+      "artist": "Michael Jackson",
+      "coverImage": "https://storage.googleapis.com/...",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-01-01T00:00:00.000Z",
+      "userId": "clx...",
+      "user": {
+        "name": "John Doe",
+        "email": "user@example.com"
+      }
+    }
+  ]
 }
 ```
 
 #### Get All Users
 
 ```http
-GET /api/admin/users
+GET /api/admin/users?page=1&limit=10
 ```
+
+**Query Parameters:**
+
+- `page` (optional): Page number, default `1`
+- `limit` (optional): Items per page, default `10`
 
 **Response (200):**
 
 ```json
 {
-  "users": [
+  "data": [
     {
       "id": "clx...",
       "email": "user@example.com",
@@ -565,7 +592,14 @@ GET /api/admin/users
         "products": 5
       }
     }
-  ]
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 150,
+    "totalPages": 15,
+    "hasMore": true
+  }
 }
 ```
 
@@ -609,27 +643,41 @@ DELETE /api/admin/users/:id
 #### Get All Products (Admin)
 
 ```http
-GET /api/admin/products
+GET /api/admin/products?page=1&limit=10
 ```
+
+**Query Parameters:**
+
+- `page` (optional): Page number, default `1`
+- `limit` (optional): Items per page, default `10`
 
 **Response (200):**
 
 ```json
 {
-  "products": [
+  "data": [
     {
       "id": "clx...",
       "name": "Thriller",
       "artist": "Michael Jackson",
       "coverImage": "https://storage.googleapis.com/...",
       "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-01-01T00:00:00.000Z",
+      "userId": "clx...",
       "user": {
         "id": "clx...",
         "name": "John Doe",
         "email": "user@example.com"
       }
     }
-  ]
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 1250,
+    "totalPages": 125,
+    "hasMore": true
+  }
 }
 ```
 
@@ -649,21 +697,69 @@ DELETE /api/admin/products/:id
 
 ### Error Responses
 
-All errors follow this format:
+All errors return a JSON object with an `error` field. Additional fields may be included depending on the error type.
+
+**Basic Error:**
 
 ```json
 {
-  "error": "Error message",
-  "details": "Additional error details (optional)"
+  "error": "Error message"
+}
+```
+
+**Validation Error:**
+
+```json
+{
+  "error": "Validation error",
+  "details": [
+    {
+      "code": "too_small",
+      "minimum": 1,
+      "type": "string",
+      "path": ["name"],
+      "message": "String must contain at least 1 character(s)"
+    }
+  ]
+}
+```
+
+**Duplicate Resource Error:**
+
+```json
+{
+  "error": "Resource already exists",
+  "field": ["email"]
+}
+```
+
+**File Upload Errors:**
+
+```json
+{
+  "error": "Only image files are allowed"
+}
+```
+
+```json
+{
+  "error": "File too large. Maximum 5MB allowed."
+}
+```
+
+```json
+{
+  "error": "Unexpected file field"
 }
 ```
 
 **Common Status Codes:**
 
-- `400` - Bad Request (validation errors)
+- `400` - Bad Request (validation errors, invalid input)
 - `401` - Unauthorized (missing or invalid token)
 - `403` - Forbidden (insufficient permissions)
-- `404` - Not Found
+- `404` - Not Found (resource doesn't exist)
+- `409` - Conflict (duplicate resource, e.g., email already registered)
 - `500` - Internal Server Error
 
 ## 🔧 Environment Variables
