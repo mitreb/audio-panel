@@ -34,7 +34,7 @@ export const errorHandler = (
     }
   }
 
-  // Handle validation errors (for when we add Zod later)
+  // Handle validation errors from Zod
   if (err.name === 'ZodError') {
     return res.status(400).json({
       error: 'Validation error',
