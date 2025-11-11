@@ -749,21 +749,11 @@ Each service deploys independently based on which files were modified.
 
 This project is licensed under the ISC License.
 
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
 ## 👤 Author
 
 **mitreb**
 
 - GitHub: [@mitreb](https://github.com/mitreb)
-
-## 🙏 Acknowledgments
-
-- Built as a technical assignment for a Full-Stack Engineer position
-- Designed for music-centric product management
-- Implements modern web development best practices
 
 ---
 
