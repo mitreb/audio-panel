@@ -11,7 +11,7 @@ export { AdminProductsPage } from './pages/AdminProductsPage';
 export * from './hooks';
 
 // Services
-export { adminService } from './services/admin.service';
+export { AdminService } from './services/admin.service';
 export type { PaginatedResponse } from './services/admin.service';
 
 // Types

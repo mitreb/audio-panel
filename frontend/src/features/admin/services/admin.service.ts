@@ -12,45 +12,45 @@ export interface PaginatedResponse<T> {
   };
 }
 
-export const adminService = {
-  getStats: async (): Promise<AdminStats> => {
+export class AdminService {
+  static async getStats(): Promise<AdminStats> {
     const response = await api.get('/admin/stats');
     return response.data;
-  },
+  }
 
-  getUsers: async (
+  static async getUsers(
     page: number = 1,
     limit: number = 10
-  ): Promise<PaginatedResponse<AdminUser>> => {
+  ): Promise<PaginatedResponse<AdminUser>> {
     const response = await api.get('/admin/users', {
       params: { page, limit },
     });
     return response.data;
-  },
+  }
 
-  deleteUser: async (userId: string): Promise<void> => {
+  static async deleteUser(userId: string): Promise<void> {
     await api.delete(`/admin/users/${userId}`);
-  },
+  }
 
-  updateUserRole: async (
+  static async updateUserRole(
     userId: string,
     role: 'USER' | 'ADMIN'
-  ): Promise<AdminUser> => {
+  ): Promise<AdminUser> {
     const response = await api.patch(`/admin/users/${userId}/role`, { role });
     return response.data;
-  },
+  }
 
-  getAllProducts: async (
+  static async getAllProducts(
     page: number = 1,
     limit: number = 10
-  ): Promise<PaginatedResponse<AdminProduct>> => {
+  ): Promise<PaginatedResponse<AdminProduct>> {
     const response = await api.get('/admin/products', {
       params: { page, limit },
     });
     return response.data;
-  },
+  }
 
-  deleteProduct: async (productId: string): Promise<void> => {
+  static async deleteProduct(productId: string): Promise<void> {
     await api.delete(`/admin/products/${productId}`);
-  },
-};
+  }
+}

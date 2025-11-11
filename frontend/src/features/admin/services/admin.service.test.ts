@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { adminService } from './admin.service';
+import { AdminService } from './admin.service';
 import api from '../../../services/api';
 import type { AdminStats, AdminUser, AdminProduct } from '../types/admin.types';
 
 // Mock the api module
 vi.mock('../../../services/api');
 
-describe('adminService', () => {
+describe('AdminService', () => {
   const mockAdminUser: AdminUser = {
     id: 'user-1',
     email: 'admin@example.com',
@@ -74,7 +74,7 @@ describe('adminService', () => {
 
       vi.mocked(api.get).mockResolvedValue(mockResponse);
 
-      const result = await adminService.getStats();
+      const result = await AdminService.getStats();
 
       expect(api.get).toHaveBeenCalledWith('/admin/stats');
       expect(result).toEqual(mockStats);
@@ -87,7 +87,7 @@ describe('adminService', () => {
       const mockError = new Error('Unauthorized');
       vi.mocked(api.get).mockRejectedValue(mockError);
 
-      await expect(adminService.getStats()).rejects.toThrow('Unauthorized');
+      await expect(AdminService.getStats()).rejects.toThrow('Unauthorized');
       expect(api.get).toHaveBeenCalledWith('/admin/stats');
     });
   });
@@ -109,7 +109,7 @@ describe('adminService', () => {
 
       vi.mocked(api.get).mockResolvedValue(mockResponse);
 
-      const result = await adminService.getUsers();
+      const result = await AdminService.getUsers();
 
       expect(api.get).toHaveBeenCalledWith('/admin/users', {
         params: { page: 1, limit: 10 },
@@ -135,7 +135,7 @@ describe('adminService', () => {
 
       vi.mocked(api.get).mockResolvedValue(mockResponse);
 
-      const result = await adminService.getUsers(2, 5);
+      const result = await AdminService.getUsers(2, 5);
 
       expect(api.get).toHaveBeenCalledWith('/admin/users', {
         params: { page: 2, limit: 5 },
@@ -149,7 +149,7 @@ describe('adminService', () => {
       const mockError = new Error('Access denied');
       vi.mocked(api.get).mockRejectedValue(mockError);
 
-      await expect(adminService.getUsers()).rejects.toThrow('Access denied');
+      await expect(AdminService.getUsers()).rejects.toThrow('Access denied');
     });
   });
 
@@ -157,7 +157,7 @@ describe('adminService', () => {
     it('should delete user successfully', async () => {
       vi.mocked(api.delete).mockResolvedValue({});
 
-      await adminService.deleteUser('user-123');
+      await AdminService.deleteUser('user-123');
 
       expect(api.delete).toHaveBeenCalledWith('/admin/users/user-123');
     });
@@ -166,7 +166,7 @@ describe('adminService', () => {
       const mockError = new Error('User not found');
       vi.mocked(api.delete).mockRejectedValue(mockError);
 
-      await expect(adminService.deleteUser('invalid-id')).rejects.toThrow(
+      await expect(AdminService.deleteUser('invalid-id')).rejects.toThrow(
         'User not found'
       );
       expect(api.delete).toHaveBeenCalledWith('/admin/users/invalid-id');
@@ -186,7 +186,7 @@ describe('adminService', () => {
 
       vi.mocked(api.patch).mockResolvedValue(mockResponse);
 
-      const result = await adminService.updateUserRole('user-2', 'ADMIN');
+      const result = await AdminService.updateUserRole('user-2', 'ADMIN');
 
       expect(api.patch).toHaveBeenCalledWith('/admin/users/user-2/role', {
         role: 'ADMIN',
@@ -207,7 +207,7 @@ describe('adminService', () => {
 
       vi.mocked(api.patch).mockResolvedValue(mockResponse);
 
-      const result = await adminService.updateUserRole('user-1', 'USER');
+      const result = await AdminService.updateUserRole('user-1', 'USER');
 
       expect(api.patch).toHaveBeenCalledWith('/admin/users/user-1/role', {
         role: 'USER',
@@ -221,7 +221,7 @@ describe('adminService', () => {
       vi.mocked(api.patch).mockRejectedValue(mockError);
 
       await expect(
-        adminService.updateUserRole('user-1', 'USER')
+        AdminService.updateUserRole('user-1', 'USER')
       ).rejects.toThrow('Cannot update own role');
     });
   });
@@ -243,7 +243,7 @@ describe('adminService', () => {
 
       vi.mocked(api.get).mockResolvedValue(mockResponse);
 
-      const result = await adminService.getAllProducts();
+      const result = await AdminService.getAllProducts();
 
       expect(api.get).toHaveBeenCalledWith('/admin/products', {
         params: { page: 1, limit: 10 },
@@ -269,7 +269,7 @@ describe('adminService', () => {
 
       vi.mocked(api.get).mockResolvedValue(mockResponse);
 
-      const result = await adminService.getAllProducts(1, 20);
+      const result = await AdminService.getAllProducts(1, 20);
 
       expect(api.get).toHaveBeenCalledWith('/admin/products', {
         params: { page: 1, limit: 20 },
@@ -282,7 +282,7 @@ describe('adminService', () => {
       const mockError = new Error('Unauthorized');
       vi.mocked(api.get).mockRejectedValue(mockError);
 
-      await expect(adminService.getAllProducts()).rejects.toThrow(
+      await expect(AdminService.getAllProducts()).rejects.toThrow(
         'Unauthorized'
       );
     });
@@ -292,7 +292,7 @@ describe('adminService', () => {
     it('should delete product successfully', async () => {
       vi.mocked(api.delete).mockResolvedValue({});
 
-      await adminService.deleteProduct('product-123');
+      await AdminService.deleteProduct('product-123');
 
       expect(api.delete).toHaveBeenCalledWith('/admin/products/product-123');
     });
@@ -301,7 +301,7 @@ describe('adminService', () => {
       const mockError = new Error('Product not found');
       vi.mocked(api.delete).mockRejectedValue(mockError);
 
-      await expect(adminService.deleteProduct('invalid-id')).rejects.toThrow(
+      await expect(AdminService.deleteProduct('invalid-id')).rejects.toThrow(
         'Product not found'
       );
       expect(api.delete).toHaveBeenCalledWith('/admin/products/invalid-id');
