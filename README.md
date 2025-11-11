@@ -319,6 +319,19 @@ audio-panel/
 
 All authenticated endpoints require a valid JWT token sent via HTTP-only cookie.
 
+**JWT Token Details:**
+
+- **Storage:** HTTP-only cookie named `token`
+- **Expiration:** 7 days
+- **Security:** 
+  - `httpOnly: true` - Prevents JavaScript access (XSS protection)
+  - `secure: true` - HTTPS only in production
+  - `sameSite: 'strict'` - CSRF protection
+- **Payload:** Contains `userId` for user identification
+- **Cookie Name:** `token`
+
+The token is automatically sent with each request via cookies. Login and register endpoints set the cookie, and logout clears it.
+
 #### Register User
 
 ```http
