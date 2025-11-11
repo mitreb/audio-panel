@@ -6,7 +6,7 @@ export function DashboardHeader() {
   return (
     <div className="flex items-center justify-between mb-8">
       <div className="space-y-1">
-        <h2 className="text-2xl font-semibold">My Products</h2>
+        <h2 className="text-2xl font-semibold">Dashboard</h2>
         <p className="text-sm text-muted-foreground">
           Manage your music products
         </p>
