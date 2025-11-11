@@ -6,17 +6,17 @@ A full-stack product management system designed for music-centric environments, 
 
 ## 📋 Table of Contents
 
-- [Overview](#overview)
-- [Features](#features)
-- [Demo Screenshots](#demo-screenshots)
-- [Technology Stack](#technology-stack)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-- [API Documentation](#api-documentation)
-- [Environment Variables](#environment-variables)
-- [Testing](#testing)
-- [Deployment](#deployment)
-- [License](#license)
+- [Overview](#-overview)
+- [Features](#-features)
+- [Demo Screenshots](#-demo-screenshots)
+- [Technology Stack](#-technology-stack)
+- [Project Structure](#-project-structure)
+- [Getting Started](#-getting-started)
+- [API Documentation](#-api-documentation)
+- [Environment Variables](#-environment-variables)
+- [Testing](#-testing)
+- [Deployment](#-deployment)
+- [License](#-license)
 
 ## 🎯 Overview
 
