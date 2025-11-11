@@ -11,6 +11,9 @@
     "test:watch": "jest --watch",
     "create-admin": "tsx src/scripts/create-admin.ts"
   },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "author": "mitreb",
   "license": "ISC",
   "dependencies": {
@@ -27,6 +30,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.1.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
