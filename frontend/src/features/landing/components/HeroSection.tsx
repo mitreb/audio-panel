@@ -9,9 +9,8 @@ export function HeroSection() {
         <div className="flex max-w-[980px] flex-col items-center gap-2 text-center">
           <h1 className="text-3xl font-extrabold leading-tight tracking-tighter md:text-5xl lg:text-6xl lg:leading-[1.1]">
             Manage Your Music Products
-            <br className="hidden sm:inline" />
-            <span className="bg-linear-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              {' '}
+            <br />
+            <span className="bg-linear-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent px-1">
               All in One Place
             </span>
           </h1>
