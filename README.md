@@ -834,7 +834,7 @@ npm run test:ui
 
 ## 🚢 Deployment
 
-This project is deployed on Google Cloud Platform (GCP). GitHub Actions automatically deploy frontend and backend separately to GCP Cloud Run when changes are pushed to the `main` branch.
+This project is deployment-ready. GitHub Actions provide automated CI/CD, enabling both the frontend and backend to be deployed to GCP Cloud Run on every push to the `main` branch.
 
 The deployment workflows are located in `.github/workflows/`:
 
