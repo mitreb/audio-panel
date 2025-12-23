@@ -2,8 +2,6 @@
 
 A full-stack product management system designed for music-centric environments, allowing users to manage audio products including albums, singles, and music releases with cover art.
 
-**Live Demo:** <a href="https://audiopanel.online/" target="_blank">https://audiopanel.online/</a>
-
 ## 📋 Table of Contents
 
 - [Overview](#-overview)
@@ -311,8 +309,6 @@ audio-panel/
 
 ### Base URL
 
-**Production:** `https://audiopanel.online/api`
-
 **Development:** `http://localhost:3000/api`
 
 ### Authentication
@@ -323,7 +319,7 @@ All authenticated endpoints require a valid JWT token sent via HTTP-only cookie.
 
 - **Storage:** HTTP-only cookie named `token`
 - **Expiration:** 7 days
-- **Security:** 
+- **Security:**
   - `httpOnly: true` - Prevents JavaScript access (XSS protection)
   - `secure: true` - HTTPS only in production
   - `sameSite: 'strict'` - CSRF protection
@@ -865,7 +861,5 @@ This project is licensed under the ISC License.
 - GitHub: [@mitreb](https://github.com/mitreb)
 
 ---
-
-**Live Demo:** <a href="https://audiopanel.online/" target="_blank">https://audiopanel.online/</a>
 
 For questions or support, please open an issue on GitHub.
